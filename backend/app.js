@@ -29,6 +29,9 @@ connectDB();
 // app.use(express.static("build"));
 // app.use(express.json());
 
-// app.use('/', mainRoutes)
+app.use('/', mainRoutes)
+// app.get('/', (req,res)=>{
+//     res.send('hello world')
+// })
 
 module.exports = app;
