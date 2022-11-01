@@ -14,6 +14,9 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   provider: ^6.0.4
+  camera: ^0.10.0+4
+  image: ^3.2.2
+  lottie: ^1.4.3
 
 dev_dependencies:
   flutter_test:
@@ -22,5 +25,7 @@ dev_dependencies:
   flutter_lints: ^2.0.0
 
 flutter:
+  assets:
+    - assets/animations/
 
   uses-material-design: true

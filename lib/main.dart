@@ -1,21 +1,34 @@
+import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
+import 'package:amazing_app/screens/capture_face_screen.dart';
+import 'package:amazing_app/services/camera_service.dart';
+import 'package:camera/camera.dart';
+
 import 'services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  // Ensure that plugin services are initialized so that `availableCameras()`
+  // can be called before `runApp()`
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
+  runApp(MyApp(
+    cameras: cameras,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final List<CameraDescription> cameras;
+  const MyApp({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => CameraService()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -26,6 +39,11 @@ class MyApp extends StatelessWidget {
         home: const HomeScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
+          CaptureFaceInstructionScreen.routeName: ((context) =>
+              const CaptureFaceInstructionScreen()),
+          CaptureFaceScreen.routeName: (context) => CaptureFaceScreen(
+                cameras: cameras,
+              ),
         },
       ),
     );
