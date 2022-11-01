@@ -1,4 +1,6 @@
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
+import 'package:amazing_app/screens/capture_face_screen.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -6,7 +8,9 @@ import 'package:lottie/lottie.dart';
 class CaptureFaceInstructionScreen extends StatefulWidget {
   static const String routeName = "CaptureFaceInstructionScreen";
 
-  const CaptureFaceInstructionScreen({super.key});
+  const CaptureFaceInstructionScreen({
+    super.key,
+  });
 
   @override
   State<CaptureFaceInstructionScreen> createState() =>
@@ -43,8 +47,8 @@ class _CaptureFaceInstructionScreenState
               Column(
                 children: [
                   const Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: const Center(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
                       child: Text(
                         'Face Authentication',
                         style: TextStyle(
@@ -56,9 +60,9 @@ class _CaptureFaceInstructionScreenState
                     ),
                   ),
                   const Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: const Center(
-                      child: const Text(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text(
                         'We need to scan your face so that we can ensure 100% security of your files',
                         textAlign: TextAlign.center,
                       ),
@@ -83,9 +87,9 @@ class _CaptureFaceInstructionScreenState
                 ),
               ),
               const Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: const Center(
-                  child: const Text(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
                     'Smile and Continue',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -98,7 +102,11 @@ class _CaptureFaceInstructionScreenState
               ),
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: CustomButtonLarge(title: 'Continue'),
+                child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, CaptureFaceScreen.routeName);
+                    },
+                    child: CustomButtonLarge(title: 'Continue')),
               )
             ],
           ),

@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
+import '../custom_widgets/custom_iOS_style_bottom_sheet.dart';
+import 'display_picture_screen.dart';
+
 class CaptureFaceScreen extends StatefulWidget {
   static const String routeName = "CaptureFaceScreen";
   final List<CameraDescription> cameras;
@@ -23,7 +26,11 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     startCamera();
+    Future.delayed(Duration.zero, () async {
+      getModalWindow(context);
+    });
   }
 
   void startCamera() async {
@@ -33,6 +40,53 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
     cameraValue = cameraController.initialize();
   }
 
+  void getModalWindow(BuildContext context) {
+    showModalBottomSheet<void>(
+      isScrollControlled: true, // to full height
+      // useSafeArea: true, // to show under status bar
+      backgroundColor: Colors.transparent, // to show BorderRadius of Container
+      context: context,
+      builder: (BuildContext context) {
+        return IOSModalStyle(
+          childBody: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text('Instructions',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('1. Position your face in the frame',
+                    style: TextStyle(
+                      fontSize: 18,
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('2. Hold Still',
+                    style: TextStyle(
+                      fontSize: 18,
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('3. Capture your picture',
+                    style: TextStyle(
+                      fontSize: 18,
+                    )),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -40,9 +94,49 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
     cameraController.dispose();
   }
 
+  captureFrame() async {
+    try {
+      // Attempt to take a picture and get the file `image`
+      // where it was saved.
+      final image = await cameraController.takePicture();
+      print(image.path);
+      if (!mounted) return;
+
+      // If the picture was taken, display it on a new screen.
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DisplayPictureScreen(
+            // Pass the automatically generated path to
+            // the DisplayPictureScreen widget.
+            imagePath: image.path,
+          ),
+        ),
+      );
+    } catch (e) {
+      // If an error occurs, log the error to the console.
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // bottomNavigationBar: Padding(
+      //   padding: const EdgeInsets.all(16.0),
+      //   child: CustomButtonLarge(title: 'Capture Frame'),
+      // ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: InkWell(
+          onTap: () {
+            captureFrame();
+          },
+          child: CustomButtonLarge(
+            title: 'Capture Frame',
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: Stack(
         children: [
           FutureBuilder(
@@ -65,10 +159,9 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Load a Lottie file from your assets
-                Lottie.asset('assets/animations/face_scan_animation.json'),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CustomButtonLarge(title: "Capture"),
+                Lottie.asset(
+                  'assets/animations/face_scan_record.json',
+                  fit: BoxFit.cover,
                 ),
               ],
             ),
