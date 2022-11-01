@@ -1,3 +1,4 @@
+import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:camera/camera.dart';
@@ -38,6 +39,8 @@ class MyApp extends StatelessWidget {
         home: const HomeScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
+          CaptureFaceInstructionScreen.routeName: ((context) =>
+              const CaptureFaceInstructionScreen()),
           CaptureFaceScreen.routeName: (context) => CaptureFaceScreen(
                 cameras: cameras,
               ),

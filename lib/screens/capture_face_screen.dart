@@ -2,6 +2,7 @@ import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 class CaptureFaceScreen extends StatefulWidget {
@@ -63,6 +64,8 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Load a Lottie file from your assets
+                Lottie.asset('assets/animations/face_scan_animation.json'),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: CustomButtonLarge(title: "Capture"),
