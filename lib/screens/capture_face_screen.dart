@@ -160,7 +160,7 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
               children: [
                 // Load a Lottie file from your assets
                 Lottie.asset(
-                  'assets/animations/face_scan_record.json',
+                  'assets/animations/green-scanner.json',
                   fit: BoxFit.cover,
                 ),
               ],
