@@ -1,8 +1,8 @@
+import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:camera/camera.dart';
-
 import 'services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +38,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: const HomeScreen(),
+        // home: const HomeScreen(),
+        home: const LoginScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>
