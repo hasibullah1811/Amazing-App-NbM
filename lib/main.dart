@@ -3,6 +3,8 @@ import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:camera/camera.dart';
+import 'screens/capture_face_live.dart';
+import 'screens/onboarding_screen.dart';
 import 'services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,7 +49,8 @@ class MyApp extends StatelessWidget {
                 cameras: cameras,
               ),
           LoginScreen.routeName: (context) => const LoginScreen(),
-          "OnboardingScreen": (context) => OnboardingScreen(),
+          CaptureFaceLive.routeName: (context) => CaptureFaceLive(),
+          "OnboardingScreen": (context) => const OnboardingScreen(),
         },
       ),
     );

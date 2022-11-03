@@ -19,6 +19,9 @@ dependencies:
   lottie: ^1.4.3
   google_sign_in: ^5.4.2
   flutter_svg: ^1.1.6
+  image_picker: ^0.8.6
+  flutter_face_api: ^4.1.0
+  # flutter_face_api_beta: ^0.0.71
 
 dev_dependencies:
   flutter_test:
@@ -29,5 +32,6 @@ dev_dependencies:
 flutter:
   assets:
     - assets/animations/
+    - assets/images/
 
   uses-material-design: true

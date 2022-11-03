@@ -143,9 +143,11 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
               future: cameraValue,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  return Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
+                  return AspectRatio(
+                      // height: MediaQuery.of(context).size.height,
+                      // width: MediaQuery.of(context).size.width,
+                      aspectRatio: MediaQuery.of(context).size.height /
+                          MediaQuery.of(context).size.width,
                       child: CameraPreview(cameraController));
                 } else {
                   return const Center(
