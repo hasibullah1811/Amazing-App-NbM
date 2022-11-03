@@ -33,5 +33,10 @@ flutter:
   assets:
     - assets/animations/
     - assets/images/
+    - assets/pictures
+  fonts:
+    - family: DancingScript
+      fonts:
+        - asset: fonts/DancingScript.ttf
 
   uses-material-design: true

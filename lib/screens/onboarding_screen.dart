@@ -66,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           shape: const CircleBorder(),
                           backgroundColor: Colors.white,
                           shadowColor: Colors.deepPurple),
-                      child: Image.asset("assets/rar.jpg", height: 50,
+                      child: Image.asset("assets/pictures/rar.jpg", height: 50,
                       ),
                     ): null,
                   ),
@@ -111,22 +111,22 @@ class Onboard{
 }
 final List<Onboard> demo_data = [
   Onboard(
-      image: "assets/trees.png",
+      image: "assets/pictures/trees.png",
       title: "Welcome to Amazing App",
       description: "Swipe left",
   ),
   Onboard(
-      image: "assets/upfiles.jpg",
+      image: "assets/pictures/upfiles.jpg",
       title: "Upload Files",
       description: "Your uploaded files will be saved to your google drive",
   ),
   Onboard(
-      image: "assets/security.png",
+      image: "assets/pictures/security.png",
       title: "Your Data is Secured",
       description: "With anti-spoofing feature, no one else can have access to your files",
   ),
   Onboard(
-    image: "assets/go.jpg",
+    image: "assets/pictures/go.jpg",
     title: "Get Started !",
     description: "",
   ),
