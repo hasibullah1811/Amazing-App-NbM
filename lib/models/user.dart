@@ -6,4 +6,3 @@ class User {
     required this.email,
   });
 }
-//hello
