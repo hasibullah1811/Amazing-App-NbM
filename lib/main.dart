@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
                 cameras: cameras,
               ),
           LoginScreen.routeName: (context) => const LoginScreen(),
+          "OnboardingScreen": (context) => OnboardingScreen(),
         },
       ),
     );

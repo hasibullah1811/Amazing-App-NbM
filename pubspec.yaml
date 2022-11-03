@@ -18,6 +18,7 @@ dependencies:
   image: ^3.2.2
   lottie: ^1.4.3
   google_sign_in: ^5.4.2
+  flutter_svg: ^1.1.6
 
 dev_dependencies:
   flutter_test:
