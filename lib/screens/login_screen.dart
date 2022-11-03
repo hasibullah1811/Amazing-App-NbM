@@ -5,6 +5,8 @@ import '../services/google_signin.dart';
 import 'loggedin_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const String routeName = "LoginScreen";
+
   const LoginScreen({Key? key}) : super(key: key);
 
   @override

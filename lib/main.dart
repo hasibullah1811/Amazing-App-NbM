@@ -6,7 +6,6 @@ import 'package:camera/camera.dart';
 import 'services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
@@ -39,7 +38,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         // home: const HomeScreen(),
-        home: const LoginScreen(),
+        home: const HomeScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>
@@ -47,6 +46,7 @@ class MyApp extends StatelessWidget {
           CaptureFaceScreen.routeName: (context) => CaptureFaceScreen(
                 cameras: cameras,
               ),
+          LoginScreen.routeName: (context) => const LoginScreen(),
         },
       ),
     );

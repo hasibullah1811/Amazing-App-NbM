@@ -17,6 +17,7 @@ dependencies:
   camera: ^0.10.0+4
   image: ^3.2.2
   lottie: ^1.4.3
+  google_sign_in: ^5.4.2
 
 dev_dependencies:
   flutter_test:
