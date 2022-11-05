@@ -21,6 +21,7 @@ dependencies:
   flutter_svg: ^1.1.6
   image_picker: ^0.8.6
   flutter_face_api: ^4.1.0
+  dio: ^4.0.6
   # flutter_face_api_beta: ^0.0.71
 
 dev_dependencies:
@@ -33,7 +34,7 @@ flutter:
   assets:
     - assets/animations/
     - assets/images/
-    - assets/pictures
+    - assets/pictures/
   fonts:
     - family: DancingScript
       fonts:

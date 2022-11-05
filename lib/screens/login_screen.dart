@@ -1,4 +1,10 @@
+import 'dart:developer';
+
+import 'package:amazing_app/services/auth_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 import '../models/user.dart';
 import '../services/google_signin.dart';
@@ -14,10 +20,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  late AuthService authService;
+  bool screenLoaded = false;
+  @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    if (!screenLoaded) {
+      authService = Provider.of<AuthService>(context);
+    }
+    screenLoaded = true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _signInContainer(),
+      body: screenLoaded
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _signInContainer(),
+              ],
+            )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+              ],
+            ),
     );
   }
 
@@ -27,27 +56,37 @@ class _LoginScreenState extends State<LoginScreen> {
         height: 200,
         child: Column(
           children: [
-            Text("Not Signed In"),
+            authService.signedIn
+                ? Column(
+                    children: [
+                      // Text(authService.user.email),
+                      // Text(authService.user.displayName),
+                    ],
+                  )
+                : Container(),
+            authService.signedIn
+                ? const Text("Signed In")
+                : const Text('Not Signed In'),
             ElevatedButton(
-                onPressed: _signIn, child: Text("Sign In with Google"))
+                onPressed: authService.googleSignInNew,
+                child: const Text("Sign In with Google"))
           ],
         ),
       ),
     );
   }
 
-  Future _signIn() async {
-    final u = await GoogleSignInApi.login();
-    User user = User(user: u!.displayName as String, email: u.email);
+  // Future _signIn() async {
+  //   final u = await GoogleSignInApi.login();
+  //   User user = User(user: u!.displayName as String, email: u.email);
 
-    if (u == null) {
-      print('failed');
-    } else {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => LoggedInPage(user: user),
-      ));
-    }
-    // print(user.toString());
-    // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> LoggedInPage(user: user)))
-  }
+  //   if (u == null) {
+  //     print('failed');
+  //   } else {
+  //     Navigator.of(context).pushReplacement(MaterialPageRoute(
+  //       builder: (context) => LoggedInPage(user: user),
+  //     ));
+  //   }
+  // print(user.toString());
+  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> LoggedInPage(user: user)))
 }
