@@ -22,6 +22,7 @@ dependencies:
   image_picker: ^0.8.6
   flutter_face_api: ^4.1.0
   onboarding: ^3.1.0
+  shared_preferences: ^2.0.15
   # flutter_face_api_beta: ^0.0.71
 
 dev_dependencies:

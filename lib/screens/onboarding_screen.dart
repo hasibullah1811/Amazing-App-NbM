@@ -1,5 +1,7 @@
+import 'package:amazing_app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:onboarding/onboarding.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -12,6 +14,12 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   late Material materialButton;
   late int index;
+
+  _storeOnboard() async {
+    bool isViewed = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('viewed_onboard', isViewed);
+  }
 
   final onboardingPagesList = [
     PageModel(
@@ -131,7 +139,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       color: defaultProceedButtonColor,
       child: InkWell(
         borderRadius: defaultProceedButtonBorderRadius,
-        onTap: () {},
+        onTap: () async {
+          await _storeOnboard();
+          Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+        },
         child: const Padding(
           padding: defaultProceedButtonPadding,
           child: Text(
@@ -201,6 +212,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       indicator: Indicator(
                         indicatorDesign: IndicatorDesign.line(
                           lineDesign: LineDesign(
+                            lineWidth: 25,
                             lineType: DesignType.line_uniform,
                           ),
                         ),
