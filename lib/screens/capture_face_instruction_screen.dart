@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
+import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/services/auth_service.dart';
 import 'package:camera/camera.dart';
@@ -51,8 +52,7 @@ class _CaptureFaceInstructionScreenState
     authService = Provider.of<AuthService>(context);
   }
 
-  setImage(
-      bool first, Uint8List? imageFile, int type, File rawImageFile) async {
+  setImage(bool first, Uint8List? imageFile, int type) async {
     if (imageFile == null) return;
     // setState(() => _similarity = "nil");
     if (first) {
@@ -63,7 +63,7 @@ class _CaptureFaceInstructionScreenState
         img1 = Image.memory(imageFile);
         // _liveness = "nil";
       });
-      await authService!.uploadPic(authService!.user.user.uid, rawImageFile);
+      // await authService!.uploadPic(authService!.user.user.uid, rawImg);
     } else {
       image2.bitmap = base64Encode(imageFile);
       image2.imageType = type;
@@ -75,7 +75,6 @@ class _CaptureFaceInstructionScreenState
     bool first,
     List<int> imageFile,
     int type,
-    File rawImageFile,
   ) {
     if (imageFile == null) return;
     // setState(() => _similarity = "nil");
@@ -112,20 +111,17 @@ class _CaptureFaceInstructionScreenState
   //         true,
   //         base64Decode(result?.bitmap?.replaceAll("\n", "") as String),
   //         regula.ImageType.LIVE,
-
   //       );
   //       setState(() => _isLive = result?.liveness == 0 ? true : false);
   //     });
 
-  liveness() async {
-    ImagePicker().pickImage(source: ImageSource.camera).then((value) => {
-          setImage(
-            true,
-            File(value!.path).readAsBytesSync(),
-            regula.ImageType.PRINTED,
-            File(value!.path),
-          )
-        });
+  liveness() {
+    {
+      ImagePicker().pickImage(source: ImageSource.camera).then((value) => {
+            setImage(true, File(value!.path).readAsBytesSync(),
+                regula.ImageType.PRINTED)
+          });
+    }
   }
 
   @override
@@ -203,7 +199,12 @@ class _CaptureFaceInstructionScreenState
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: InkWell(
-                    onTap: liveness,
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        CaptureFaceScreen.routeName,
+                      );
+                    },
                     child: CustomButtonLarge(title: 'Continue')),
               )
             ],

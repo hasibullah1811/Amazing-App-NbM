@@ -1,4 +1,5 @@
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
+import 'package:amazing_app/services/auth_service.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class CaptureFaceScreen extends StatefulWidget {
 class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
   late CameraController cameraController;
   late Future<void> cameraValue;
+  AuthService? authService;
 
   @override
   void initState() {
@@ -31,6 +33,13 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
     Future.delayed(Duration.zero, () async {
       getModalWindow(context);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    authService = Provider.of<AuthService>(context);
   }
 
   void startCamera() async {
@@ -101,7 +110,6 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
       final image = await cameraController.takePicture();
       print(image.path);
       if (!mounted) return;
-
       // If the picture was taken, display it on a new screen.
       await Navigator.of(context).push(
         MaterialPageRoute(
@@ -120,11 +128,8 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
-      // bottomNavigationBar: Padding(
-      //   padding: const EdgeInsets.all(16.0),
-      //   child: CustomButtonLarge(title: 'Capture Frame'),
-      // ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16.0),
         child: InkWell(
@@ -143,12 +148,7 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
               future: cameraValue,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
-                  return AspectRatio(
-                      // height: MediaQuery.of(context).size.height,
-                      // width: MediaQuery.of(context).size.width,
-                      aspectRatio: MediaQuery.of(context).size.height /
-                          MediaQuery.of(context).size.width,
-                      child: CameraPreview(cameraController));
+                  return CameraPreview(cameraController);
                 } else {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -163,7 +163,8 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
                 // Load a Lottie file from your assets
                 Lottie.asset(
                   'assets/animations/green-scanner.json',
-                  fit: BoxFit.cover,
+                  height: size.height * 0.7,
+                  fit: BoxFit.contain,
                 ),
               ],
             ),

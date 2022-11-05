@@ -1,3 +1,4 @@
+import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
@@ -40,9 +41,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Amazing App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
+        theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Montserrat'),
         // home: const HomeScreen(),
         home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
         routes: {
@@ -55,6 +54,7 @@ class MyApp extends StatelessWidget {
           LoginScreen.routeName: (context) => const LoginScreen(),
           CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
+          LandingScreen.routeName: (context) => const LandingScreen(),
         },
       ),
     );

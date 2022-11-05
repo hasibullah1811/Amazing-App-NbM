@@ -18,11 +18,13 @@ class AuthService with ChangeNotifier {
   bool signedIn = false;
   late client.Dio dio;
   late GoogleSignIn googleSignIn;
+  late GoogleSignInAccount? currentUser;
   late User user;
   String userUID = '';
   bool pictureUploaded = false;
   AuthService() {
     dio = client.Dio();
+
     if (defaultTargetPlatform == TargetPlatform.android) {
       // Android specific code
       googleSignIn = GoogleSignIn(
@@ -47,9 +49,16 @@ class AuthService with ChangeNotifier {
   // Future<bool> googleSignIn() {}
 
   googleSignInNew() async {
+    loading = true;
     final GoogleSignInAccount? googleUser =
         await googleSignIn.signIn().catchError((onError) {});
-    //final GoogleSignInAccount currentUser = _googleSignIn.currentUser;
+    // GoogleSignInAccount? currentUser = googleSignIn.currentUser;
+    // googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    //   currentUser = account;
+
+    //   if (currentUser != null) {}
+    // });
+    // googleSignIn.signInSilently();
     final GoogleSignInAuthentication googleAuth =
         await googleUser!.authentication;
 
@@ -69,15 +78,15 @@ class AuthService with ChangeNotifier {
     );
     user = User(user: userClass);
     log('Updated UID' + user.user.uid.toString());
-
+    loading = false;
     notifyListeners();
   }
 
-  Future uploadPic(String uid, File file) async {
+  Future uploadPic(String uid, String filePath) async {
     try {
       //uploads Insurance:
       var formData1 = client.FormData.fromMap({
-        'file': await client.MultipartFile.fromFile(file.path,
+        'file': await client.MultipartFile.fromFile(filePath,
             filename: DateTime.now().millisecondsSinceEpoch.toString(),
             contentType: MediaType('image', 'png')),
       });
@@ -132,4 +141,6 @@ class AuthService with ChangeNotifier {
       print(e);
     }
   }
+
+  Future<void> handleSignOut() => googleSignIn.disconnect();
 }
