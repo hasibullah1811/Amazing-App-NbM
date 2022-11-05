@@ -22,6 +22,7 @@ dependencies:
   image_picker: ^0.8.6
   flutter_face_api: ^4.1.0
   dio: ^4.0.6
+  onboarding: ^3.1.0
   # flutter_face_api_beta: ^0.0.71
 
 dev_dependencies:
@@ -39,5 +40,14 @@ flutter:
     - family: DancingScript
       fonts:
         - asset: fonts/DancingScript.ttf
+    - family: Montserrat
+      fonts:
+        - asset: fonts\Montserrat-Bold.ttf
+          weight: 700
+        - asset: fonts\Montserrat-Light.ttf
+          weight: 100
+        - asset: fonts\Montserrat-Medium.ttf
+          weight: 500
+        - asset: fonts\Montserrat-Regular.ttf
 
   uses-material-design: true
