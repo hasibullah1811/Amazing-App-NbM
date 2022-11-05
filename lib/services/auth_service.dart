@@ -1,6 +1,8 @@
 import 'dart:developer';
-
+import 'dart:io';
+import 'package:http_parser/http_parser.dart';
 import 'package:amazing_app/models/user.dart';
+import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:dio/dio.dart' as client;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,8 @@ class AuthService with ChangeNotifier {
   late client.Dio dio;
   late GoogleSignIn googleSignIn;
   late User user;
+  String userUID = '';
+  bool pictureUploaded = false;
   AuthService() {
     dio = client.Dio();
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -51,30 +55,51 @@ class AuthService with ChangeNotifier {
 
     signedIn = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
-      createUser('', googleAuth.accessToken.toString());
+      await createUser('', googleAuth.accessToken.toString());
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-      createUser(googleAuth.idToken.toString(), '');
+      await createUser(googleAuth.idToken.toString(), '');
     }
     // Create the User Model
     UserClass userClass = UserClass(
-      uid: googleUser.id,
+      uid: userUID,
       email: googleUser.email,
       emailVerified: true,
       displayName: googleUser.displayName.toString(),
       isAnonymous: true,
     );
     user = User(user: userClass);
+    log('Updated UID' + user.user.uid.toString());
+
     notifyListeners();
   }
 
-  Future uploadPic(String uid) async {
+  Future uploadPic(String uid, File file) async {
     try {
-      client.Response res = await dio.post(
-        "https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/$uid",
+      //uploads Insurance:
+      var formData1 = client.FormData.fromMap({
+        'file': await client.MultipartFile.fromFile(file.path,
+            filename: DateTime.now().millisecondsSinceEpoch.toString(),
+            contentType: MediaType('image', 'png')),
+      });
+
+      var res = await dio.post(
+        'https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/$uid',
+        data: formData1,
+        options: client.Options(headers: {
+          "Accept": "*/*",
+          "Content-Type": "multipart/form-data",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Connection": "keep-alive"
+        }),
       );
-      if (res.statusCode == 200) {}
+      // client.Response res = await dio.post(
+      //   "https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/$uid",
+      // );
+      if (res.statusCode == 200) {
+        log('Upload Successful');
+      }
     } catch (e) {
-      print(e.toString());
+      if (e is client.DioError) print(e.response.toString());
     }
   }
 
@@ -91,7 +116,17 @@ class AuthService with ChangeNotifier {
         },
       );
       if (res.statusCode == 200) {
-        return res.data;
+        log(res.data.toString());
+        userUID = res.data['uid'];
+        if (res.data['pic'] == '') {
+          pictureUploaded = false;
+          log('Picture not uploaded');
+        } else {
+          pictureUploaded = true;
+          log('Picture  uploaded');
+        }
+
+        notifyListeners();
       }
     } catch (e) {
       print(e);

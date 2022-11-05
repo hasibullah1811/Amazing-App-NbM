@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         // home: const HomeScreen(),
-        home: isViewed != true ?  const OnboardingScreen(): const LoginScreen(),
+        home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>
@@ -53,8 +53,8 @@ class MyApp extends StatelessWidget {
                 cameras: cameras,
               ),
           LoginScreen.routeName: (context) => const LoginScreen(),
-          CaptureFaceLive.routeName: (context) => CaptureFaceLive(),
-          OnboardingScreen.routeName: (context) => OnboardingScreen(),
+          CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
+          OnboardingScreen.routeName: (context) => const OnboardingScreen(),
         },
       ),
     );

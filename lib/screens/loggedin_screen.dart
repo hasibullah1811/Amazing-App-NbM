@@ -23,8 +23,8 @@ class LoggedInPage extends StatelessWidget {
             child: Column(
               children: [
                 Text("Signed In"),
-                // Text(user.displayName),
-                // Text(user.email),
+                Text(user.user.displayName),
+                Text(user.user.email),
                 ElevatedButton(onPressed: _signOut, child: Text("Sign Out"))
               ],
             ),
