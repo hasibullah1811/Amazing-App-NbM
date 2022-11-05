@@ -18,6 +18,21 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>amazing_app</string>
+	<!-- Google Sign-in Section -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<!-- TODO Replace this value: -->
+				<!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
+				<string>com.googleusercontent.apps.925629464605-uh9ri343esng52voe9emqncvhu0i27va</string>
+			</array>
+		</dict>
+	</array>
+<!-- End of the Google Sign-in Section -->
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
