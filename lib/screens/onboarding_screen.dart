@@ -1,180 +1,221 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:onboarding/onboarding.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
+  static const routeName = "OnboardingScreen";
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
-int _pageIndex = 0;
-late PageController _pageController;
-bool button = false;
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  late Material materialButton;
+  late int index;
 
-  @override
-  void initState(){
-    _pageController = PageController(initialPage: 0);
-  }
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+  final onboardingPagesList = [
+    PageModel(
+      widget: SingleChildScrollView(
+        controller: ScrollController(),
+        child: Center(
           child: Column(
             children: [
-              Expanded(
-                child: PageView.builder(
-                  itemCount: demo_data.length,
-                  controller: _pageController,
-                  onPageChanged: (index){
-                    setState(() {
-                      _pageIndex = index;
-
-                    });index==3? button = true: false; index<3?button=false:true;
-                  },
-                  itemBuilder:(context, index) => OnBoardContent(
-                    image: demo_data[index].image,
-                    title: demo_data[index].title,
-                    description: demo_data[index].description,
-                  ),
+              const SizedBox(
+                height: 200,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0, bottom: 20, left: 80, right: 80),
+                child: SizedBox(
+                  height: 250,
+                  width: 150,
+                  child: Image.asset('assets/images/protection.png'),
                 ),
               ),
-              Row(
-                children: [
-                  ...List.generate(demo_data.length,
-                          (index) => Padding(
-                        padding: EdgeInsets.only(right: 4),
-                        child: DotIndicator(isActive: index == _pageIndex),
-                      )
+              const Padding(
+                padding: EdgeInsets.only(bottom: 45, left: 30, right: 30),
+                child: Text(
+                  'Encrypt your files!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 18,
                   ),
-                  const Spacer(),
-                  SizedBox(
-                    height: 60,
-                    width: 60,
-                    child: button? ElevatedButton(
-                      onPressed: () {_pageController.nextPage(curve: Curves.ease, duration: const Duration(microseconds: 300));
-                        },
-                      style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          backgroundColor: Colors.white,
-                          shadowColor: Colors.deepPurple),
-                      child: Image.asset("assets/pictures/rar.jpg", height: 50,
-                      ),
-                    ): null,
-                  ),
-                ],
-              ),
+                ),
+              )
             ],
           ),
         ),
       ),
+    ),
+    PageModel(
+      widget: SingleChildScrollView(
+        controller: ScrollController(),
+        child: Center(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 200,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0, bottom: 20, left: 80, right: 80),
+                child: SizedBox(
+                  height: 250,
+                  width: 150,
+                  child: Image.asset('assets/images/google-drive.png'),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 45, left: 30, right: 30),
+                child: Text(
+                  'Upload to Google Drive!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 18,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    ),
+    PageModel(
+      widget: SingleChildScrollView(
+        controller: ScrollController(),
+        child: Center(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 200,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0, bottom: 20, left: 80, right: 80),
+                child: SizedBox(
+                  height: 250,
+                  width: 150,
+                  child: Image.asset('assets/images/face.png'),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 45, left: 30, right: 30),
+                child: Text(
+                  'Access with facial recognition!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 18,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    materialButton = _skipButton();
+    index = 0;
+  }
+
+  Material get _signupButton {
+    return Material(
+      borderRadius: defaultProceedButtonBorderRadius,
+      color: defaultProceedButtonColor,
+      child: InkWell(
+        borderRadius: defaultProceedButtonBorderRadius,
+        onTap: () {},
+        child: const Padding(
+          padding: defaultProceedButtonPadding,
+          child: Text(
+            'Sign up',
+            style: defaultProceedButtonTextStyle,
+          ),
+        ),
+      ),
     );
   }
 
-}
-class DotIndicator extends StatelessWidget {
-  const DotIndicator({Key? key,
-    this.isActive = false,
-  }) : super(key: key);
-
-  final bool isActive;
+  Material _skipButton({void Function(int)? setIndex}) {
+    return Material(
+      borderRadius: defaultSkipButtonBorderRadius,
+      color: defaultSkipButtonColor,
+      child: InkWell(
+        borderRadius: defaultSkipButtonBorderRadius,
+        onTap: () {
+          if (setIndex != null) {
+            index = 2;
+            setIndex(2);
+          }
+        },
+        child: const Padding(
+          padding: defaultSkipButtonPadding,
+          child: Text(
+            'Skip',
+            style: defaultSkipButtonTextStyle,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
-      height: isActive ? 12 : 4,
-      width: 4,
-      decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.black.withOpacity(0.4),
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: Scaffold(
+        body: Onboarding(
+          pages: onboardingPagesList,
+          onPageChange: (int pageIndex) {
+            index = pageIndex;
+          },
+          startPageIndex: 0,
+          footerBuilder: (context, dragDistance, pagesLength, setIndex) {
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 0.0,
+                  color: Colors.white,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(45.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CustomIndicator(
+                      netDragPercent: dragDistance,
+                      pagesLength: pagesLength,
+                      indicator: Indicator(
+                        indicatorDesign: IndicatorDesign.line(
+                          lineDesign: LineDesign(
+                            lineType: DesignType.line_uniform,
+                          ),
+                        ),
+                      ),
+                    ),
+                    index == pagesLength - 1
+                        ? _signupButton
+                        : _skipButton(setIndex: setIndex)
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 }
-class Onboard{
-  final String image, title, description;
-
-  Onboard({
-    required this.image,
-    required this.title,
-    required this.description,
-  });
-}
-final List<Onboard> demo_data = [
-  Onboard(
-      image: "assets/pictures/trees.png",
-      title: "Welcome to Amazing App",
-      description: "Swipe left",
-  ),
-  Onboard(
-      image: "assets/pictures/upfiles.jpg",
-      title: "Upload Files",
-      description: "Your uploaded files will be saved to your google drive",
-  ),
-  Onboard(
-      image: "assets/pictures/security.png",
-      title: "Your Data is Secured",
-      description: "With anti-spoofing feature, no one else can have access to your files",
-  ),
-  Onboard(
-    image: "assets/pictures/go.jpg",
-    title: "Get Started !",
-    description: "",
-  ),
-];
-
-class OnBoardContent extends StatelessWidget {
-  const OnBoardContent({
-    Key? key,
-    required this.image,
-    required this.title,
-    required this.description,
-  }) : super(key: key);
-
-  final String image, title, description;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Image.asset(image, height: 400,
-        ),
-
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 40.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.cyan[600],
-            fontFamily: 'DancingScript',
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          description,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.purple,
-            fontFamily: 'DancingScript',
-          ),
-        )
-      ],
-    );
-  }
-}
-
-
-
-
-
