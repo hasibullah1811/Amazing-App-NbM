@@ -1,10 +1,10 @@
-const app = require("./app");
-const http = require("http");
-const config = require("./utils/config");
-// const logger = require("./utils/logger");
+require('dotenv').config();
+const express = require('express');
+const app = express();
 
-// const server = http.createServer(app);
+require('./startup/routes')(app);
+require('./startup/prod')(app);
 
-app.listen(config.PORT, () => {
-  console.log(`Server running at port ${config.PORT}`);
-});
+
+const port = process.env.PORT || 3000;
+const server = app.listen(port, () => console.log(`Listening on port ${port}...`));
