@@ -24,6 +24,13 @@ dependencies:
   dio: ^4.0.6
   onboarding: ^3.1.0
   shared_preferences: ^2.0.15
+  googleapis: ^9.2.0
+  googleapis_auth: ^1.3.1
+  url_launcher: ^6.1.6
+  flutter_secure_storage: ^6.0.0
+  flutter_document_picker: ^5.1.0
+  mime_type: ^1.0.0
+  path_provider: ^2.0.11
   # path_provider: ^2.0.11
   # flutter_face_api_beta: ^0.0.71
 

@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:amazing_app/services/client.dart';
+import 'package:amazing_app/services/file.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:amazing_app/models/user.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
@@ -7,6 +9,8 @@ import 'package:dio/dio.dart' as client;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/drive/v3.dart' as ga;
+import 'package:path/path.dart' as path;
 
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
@@ -22,14 +26,17 @@ class AuthService with ChangeNotifier {
   late User user;
   String userUID = '';
   bool pictureUploaded = false;
+
   AuthService() {
     dio = client.Dio();
+    // httpClient = http.Client();
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       // Android specific code
       googleSignIn = GoogleSignIn(
         scopes: [
           'email',
+          ga.DriveApi.driveFileScope,
         ],
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -52,13 +59,6 @@ class AuthService with ChangeNotifier {
     loading = true;
     final GoogleSignInAccount? googleUser =
         await googleSignIn.signIn().catchError((onError) {});
-    // GoogleSignInAccount? currentUser = googleSignIn.currentUser;
-    // googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-    //   currentUser = account;
-
-    //   if (currentUser != null) {}
-    // });
-    // googleSignIn.signInSilently();
     final GoogleSignInAuthentication googleAuth =
         await googleUser!.authentication;
 
@@ -81,6 +81,30 @@ class AuthService with ChangeNotifier {
     loading = false;
     notifyListeners();
   }
+
+  Future uploadFilesToGoogleDrive(File file) async {
+    // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+
+    print('c2');
+    GoogleDriveFileUploadMetaData metaData = GoogleDriveFileUploadMetaData(
+      name: "hello.jpg",
+    );
+    print('c3');
+    var id = await googleDriveClient.create(metaData, file,
+        onUploadProgress: (currentProgress, totalProgress) {
+      print('$currentProgress / $totalProgress');
+    });
+    print('c4');
+    return id;
+  }
+
 
   Future uploadPic(String uid, String filePath) async {
     try {
@@ -125,7 +149,7 @@ class AuthService with ChangeNotifier {
         },
       );
       if (res.statusCode == 200) {
-        log(res.data.toString());
+        log('res' + res.data.toString());
         userUID = res.data['uid'];
         if (res.data['pic'] == '') {
           pictureUploaded = false;

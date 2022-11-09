@@ -1,3 +1,4 @@
+import 'package:amazing_app/screens/drive_upload_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
@@ -42,8 +43,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Amazing App',
         theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Montserrat'),
-        // home: const HomeScreen(),
-        home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
+        home: const LoginScreen(),
+        // home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
           CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
           LandingScreen.routeName: (context) => const LandingScreen(),
+          DriveUploadScreen.routeName: (context) => const DriveUploadScreen(),
         },
       ),
     );
