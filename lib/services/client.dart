@@ -106,7 +106,7 @@ class GoogleDriveClient {
       },
       data: {
         'parents':
-            _space == GoogleDriveSpace.appDataFolder ? ['appDataFolder'] : null,
+            ['root'],
         'properties': metaData.properties,
         'appProperties': metaData.appProperties,
         'description': metaData.description,
