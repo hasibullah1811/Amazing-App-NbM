@@ -250,10 +250,20 @@ class AuthService with ChangeNotifier {
     // final Stream<List<int>> mediaStream =
     //     Future.value(contents.codeUnits).asStream().asBroadcastStream();
     // var media = drive.Media(content, content.length as int);
+
+
+    // You can also use parent : "id of the folder"
+
+    //Below is an example
+    // var id = await googleDriveClient.create(metaData, file,
+    //     onUploadProgress: (currentProgress, totalProgress) {
+    //   print('$currentProgress / $totalProgress');
+    // }, parent: "1mszp0ACsrr7KNbEJLsgQArPs7mHrDDoc");
+
     var id = await googleDriveClient.create(metaData, file,
         onUploadProgress: (currentProgress, totalProgress) {
       print('$currentProgress / $totalProgress');
-    });
+    }, parent: "root");
     // print('c4');
     // final response =
     // await driveApi?.files.create(driveFile, uploadMedia: media);
