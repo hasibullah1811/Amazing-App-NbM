@@ -123,7 +123,7 @@ class AuthService with ChangeNotifier {
     // driveFile.mimeType = MediaType("image", "jpg") as String?;
 
     GoogleDriveFileUploadMetaData metaData = GoogleDriveFileUploadMetaData(
-      name: "hwllo.jpg",
+      name: "hello.ppt",
     );
 
     // final List<int> content = File(file.path).readAsBytes() as List<int>;
