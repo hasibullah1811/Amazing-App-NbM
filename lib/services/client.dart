@@ -28,8 +28,9 @@ class GoogleDriveClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (request, handler) {
-          if (token != null && token != '')
+          if (token != null && token != '') {
             request.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(request);
         },
       ),

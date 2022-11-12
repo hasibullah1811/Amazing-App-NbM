@@ -102,6 +102,8 @@ class AuthService with ChangeNotifier {
     // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
     // final driveApi = await _getDriveApi();
     // print(file);
+    final fileBaseName = file.toString();
+    final fileName = (fileBaseName.split('/').last);
     final GoogleSignInAccount? googleUser =
         await googleSignIn.signIn().catchError((onError) {});
     final GoogleSignInAuthentication googleAuth =
@@ -123,7 +125,7 @@ class AuthService with ChangeNotifier {
     // driveFile.mimeType = MediaType("image", "jpg") as String?;
 
     GoogleDriveFileUploadMetaData metaData = GoogleDriveFileUploadMetaData(
-      name: "hwllo.jpg",
+      name: fileName,
     );
 
     // final List<int> content = File(file.path).readAsBytes() as List<int>;
