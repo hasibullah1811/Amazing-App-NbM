@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:amazing_app/services/auth_service.dart';
@@ -37,14 +38,12 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
         }
       });
       authService.googleSignIn.signInSilently();
-      
     }
     screenLoaded = true;
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return Visibility(
       visible: screenLoaded,
       child: Scaffold(
@@ -54,12 +53,15 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
           onPressed: () async {
             // await authService.googleSignInNew();
             final path = await FlutterDocumentPicker.openDocument();
+            File newFile = File(path as String);
+            final dataBytes = await newFile.readAsBytes();
+            final bytesBase = base64Encode(dataBytes);
+            print(bytesBase);
             // print(path);
             // var googleDrive = GoogleDrive();
             // googleDrive.upload(File(path as String));
             try {
-              var id = await authService
-                  .uploadFilesToGoogleDrive(File(path as String));
+              var id = await authService.uploadFilesToGoogleDrive(newFile);
               print('id : $id');
             } catch (error) {
               print('error occured');
@@ -68,7 +70,6 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
             }
           },
         )),
-      
       ),
     );
   }
