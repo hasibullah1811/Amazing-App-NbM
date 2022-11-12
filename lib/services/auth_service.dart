@@ -126,11 +126,11 @@ class AuthService with ChangeNotifier {
   //   var drives = await googleDriveClient.driveList();
   // }
 
-  Future createFolder() async {
+  Future createFolder(String folderName) async {
     final driveApi = await _getDriveApi();
     final driveFile = drive.File();
     driveFile.mimeType = "application/vnd.google-apps.folder";
-    driveFile.name = "Api-Folder";
+    driveFile.name = folderName;
 
     final folder = driveApi?.files.create(driveFile);
     print(folder);
@@ -171,6 +171,8 @@ class AuthService with ChangeNotifier {
     return file;
   }
 
+
+
   void saveFile(String fileName, File file) async {
     String path = await getFilePath(fileName);
     // final File newFile = await file.copy(path);
@@ -205,12 +207,12 @@ class AuthService with ChangeNotifier {
     return file;
   }
 
-  Future getAllFiles() async {
-    final driveApi = await _getDriveApi();
-    final files = driveApi?.files.list();
-    print(files);
-    return files;
-  }
+  // Future getAllFiles() async {
+  //   final driveApi = await _getDriveApi();
+  //   final files = driveApi?.files.list();
+  //   print(files);
+  //   return files;
+  // }
 
   Future uploadFilesToGoogleDrive(File file) async {
     // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
