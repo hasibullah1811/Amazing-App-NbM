@@ -99,6 +99,8 @@ class GoogleDriveClient {
       GoogleDriveFileUploadMetaData metaData, File file,
       {required Function(int, int) onUploadProgress}) async {
     print('check 1 ${file.path}');
+
+    try {} catch (e) {}
     Response metaResponse = await _dio.post(
       'https://www.googleapis.com/upload/drive/v3/files',
       queryParameters: {
