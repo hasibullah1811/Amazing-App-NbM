@@ -15,6 +15,7 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
@@ -109,7 +110,7 @@ class AuthService with ChangeNotifier {
     var files = await googleDriveClient.list();
     files.forEach((element) async {
       var file = await googleDriveClient.get(element.id as String);
-      print(file.name);
+      print("${file.name} - ${file.id}");
     });
     return files;
   }
@@ -150,15 +151,61 @@ class AuthService with ChangeNotifier {
     return driveList;
   }
 
-  Future getFolderOrFile(String fileId) async {
-    final driveApi = await _getDriveApi();
-    // final driveFile = drive.File();
-    // driveFile.mimeType = "application/vnd.google-apps.folder";
-    final folder = driveApi?.files.get(fileId);
-    return folder;
+  Future downloadFile(String fileId) async {
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    final fileForName = await getFolderOrFile(fileId);
+    final file = await googleDriveClient.download(fileId, fileForName.name as String,
+        onDownloadProgress: (i, l) {
+      print('$i/$l');
+    });
+    final fileBaseName = file.toString();
+    final fileName = (fileBaseName.split('/').last);
+    saveFile(fileName, file);
+    print('saved file: $fileName');
+    return file;
   }
 
-  Future getAllFiles(String fileId) async {
+  void saveFile(String fileName, File file) async {
+    String path = await getFilePath(fileName);
+    // final File newFile = await file.copy(path);
+
+
+    //MODIFY these
+    file.writeAsBytes(Uint8List(await file.length()));
+    // print('save file location: ${newFile.path}');
+  }
+
+  Future<String> getFilePath(String fileName) async {
+    Directory appDocumentsDirectory =
+        await getApplicationDocumentsDirectory(); // 1
+    String appDocumentsPath = appDocumentsDirectory.path; // 2
+    String filePath = '$appDocumentsPath/$fileName'; // 3
+
+    return filePath;
+  }
+
+  Future<GoogleDriveFileMetaData> getFolderOrFile(String fileId) async {
+    // final driveApi = await _getDriveApi();
+    // final folder = driveApi?.files.get(fileId);
+    // return folder;
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    final file = await googleDriveClient.get(fileId);
+    return file;
+  }
+
+  Future getAllFiles() async {
     final driveApi = await _getDriveApi();
     final files = driveApi?.files.list();
     print(files);

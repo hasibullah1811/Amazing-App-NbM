@@ -32,6 +32,7 @@ dependencies:
   mime_type: ^1.0.0
   path_provider: ^2.0.11
   intl: ^0.17.0
+  flutter_downloader: ^1.9.1
   # path_provider: ^2.0.11
   # flutter_face_api_beta: ^0.0.71
 

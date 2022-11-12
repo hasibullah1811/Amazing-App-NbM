@@ -84,8 +84,7 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
               child: Text("Get List of files")),
           ElevatedButton(
               onPressed: () async {
-                final files_list =
-                    await authService.getAllFilesFromGoogleDrive();
+                final files_list = await authService.getAllFiles();
                 print(files_list);
               },
               child: Text("Get List of files other api")),
@@ -101,11 +100,15 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
                 print(files_list);
               },
               child: Text("Get Drives")),
-          // ElevatedButton(
-          //     onPressed: () async {
-          //       await authService.
-          //     },
-          //     child: Text("Get List")),
+          ElevatedButton(
+              onPressed: () async {
+                //1jZsUbLryBbXBJBn0UYXC1aAumLYTnczV
+                //1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C
+                final file = await authService
+                    .downloadFile("1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C");
+                print(file);
+              },
+              child: Text("Download Files")),
         ]),
       )),
     );
