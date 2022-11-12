@@ -106,7 +106,7 @@ class GoogleDriveClient {
   /// create a google file
   Future<GoogleDriveFileMetaData> create(
       GoogleDriveFileUploadMetaData metaData, File file,
-      {required Function(int, int) onUploadProgress}) async {
+      {required Function(int, int) onUploadProgress, String parent = "root"}) async {
     print('check 1 ${file.path}');
 
     try {} catch (e) {}
@@ -116,7 +116,7 @@ class GoogleDriveClient {
         'uploadType': 'resumable',
       },
       data: {
-        'parents': ['root'],
+        'parents': [parent],
         'properties': metaData.properties,
         'appProperties': metaData.appProperties,
         'description': metaData.description,
