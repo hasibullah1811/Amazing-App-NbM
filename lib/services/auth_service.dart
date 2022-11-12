@@ -15,6 +15,7 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
@@ -22,6 +23,7 @@ class AuthService with ChangeNotifier {
   static String serverURl = 'https://pure-chamber-40901.herokuapp.com/api/';
 
   late BuildContext navigationContext;
+  int progressPercentage = 0;
   bool loading = false;
   bool signedIn = false;
   late client.Dio dio;
@@ -98,10 +100,138 @@ class AuthService with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive() async {
+    loading = true;
+    notifyListeners();
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    var files = await googleDriveClient.list();
+    files.forEach((element) async {
+      var file = await googleDriveClient.get(element.id as String);
+      print("${file.name} - ${file.id}");
+    });
+    loading = false;
+    notifyListeners();
+    return files;
+  }
+
+  // Future getAllDrives() async {
+  //   final GoogleSignInAccount? googleUser =
+  //       await googleSignIn.signIn().catchError((onError) {});
+  //   final GoogleSignInAuthentication googleAuth =
+  //       await googleUser!.authentication;
+  //   // print('c1');
+  //   var googleDriveClient =
+  //       GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+  //   var drives = await googleDriveClient.driveList();
+  // }
+
+  Future createFolder(String folderName) async {
+    final driveApi = await _getDriveApi();
+    final driveFile = drive.File();
+    driveFile.mimeType = "application/vnd.google-apps.folder";
+    driveFile.name = folderName;
+
+    final folder = driveApi?.files.create(driveFile);
+    print(folder);
+  }
+
+  Future getDrives() async {
+    final driveApi = await _getDriveApi();
+    final drives = await driveApi?.drives.list();
+    drive.DriveList? driveList = drives as drive.DriveList;
+
+    if (driveList != null) {
+      print(driveList.drives);
+      driveList.drives?.forEach((element) {
+        print(element.name);
+      });
+    }
+
+    return driveList;
+  }
+
+  Future downloadFile(String fileId) async {
+    loading = true;
+    progressPercentage = 0;
+    notifyListeners();
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    final fileForName = await getFolderOrFile(fileId);
+    final file = await googleDriveClient.download(
+        fileId, fileForName.name as String, onDownloadProgress: (i, l) {
+      print('$i/$l');
+      progressPercentage = ((i / l) * 100).floor();
+      notifyListeners();
+    });
+    final fileBaseName = file.absolute.toString();
+    final fileN = (fileBaseName.split('/').last);
+    final fileName = fileN.split('\'').first;
+    saveFile(fileName, file);
+    print('saved file: ${fileName}');
+    loading = false;
+    return file;
+  }
+
+  void saveFile(String fileName, File file) async {
+    String path = await getFilePath(fileName);
+    // final File newFile = await file.copy(path);
+
+    //MODIFY these
+    file.writeAsBytes(Uint8List(await file.length()));
+    // print('save file location: ${newFile.path}');
+  }
+
+  Future<String> getFilePath(String fileName) async {
+    Directory appDocumentsDirectory =
+        await getApplicationDocumentsDirectory(); // 1
+    String appDocumentsPath = appDocumentsDirectory.path; // 2
+    String filePath = '$appDocumentsPath/$fileName'; // 3
+    return filePath;
+  }
+
+  Future<GoogleDriveFileMetaData> getFolderOrFile(String fileId) async {
+    // final driveApi = await _getDriveApi();
+    // final folder = driveApi?.files.get(fileId);
+    // return folder;
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    final file = await googleDriveClient.get(fileId);
+    return file;
+  }
+
+  // Future getAllFiles() async {
+  //   final driveApi = await _getDriveApi();
+  //   final files = driveApi?.files.list();
+  //   print(files);
+  //   return files;
+  // }
+
   Future uploadFilesToGoogleDrive(File file) async {
     // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
     // final driveApi = await _getDriveApi();
     // print(file);
+    progressPercentage = 0;
+    loading = true;
+    notifyListeners();
+    final fileBaseName = file.absolute.toString();
+    final fileN = (fileBaseName.split('/').last);
+    final fileName = fileN.split('\'').first;
     final GoogleSignInAccount? googleUser =
         await googleSignIn.signIn().catchError((onError) {});
     final GoogleSignInAuthentication googleAuth =
@@ -123,7 +253,7 @@ class AuthService with ChangeNotifier {
     // driveFile.mimeType = MediaType("image", "jpg") as String?;
 
     GoogleDriveFileUploadMetaData metaData = GoogleDriveFileUploadMetaData(
-      name: "hello.ppt",
+      name: fileName,
     );
 
     // final List<int> content = File(file.path).readAsBytes() as List<int>;
@@ -135,6 +265,8 @@ class AuthService with ChangeNotifier {
     var id = await googleDriveClient.create(metaData, file,
         onUploadProgress: (currentProgress, totalProgress) {
       print('$currentProgress / $totalProgress');
+      progressPercentage = ((currentProgress / totalProgress) * 100).floor();
+      notifyListeners();
     });
     // print('c4');
     // final response =
@@ -142,7 +274,6 @@ class AuthService with ChangeNotifier {
     // return response;
     // return id;
     // }
-
     // Future uploadFilesToGoogleDrive(String? base, File? file, Uint8List dataBytes) async {
     //   final driveApi = await _getDriveApi();
     //   final driveFile = drive.File();
@@ -156,6 +287,9 @@ class AuthService with ChangeNotifier {
 
     //   driveFile.name = "test1.jpg";
     //   final response = driveApi?.files.create(driveFile, uploadMedia: media);
+
+    loading = false;
+    notifyListeners();
     return id;
   }
 
@@ -242,6 +376,31 @@ class AuthService with ChangeNotifier {
     final driveApi = drive.DriveApi(client);
     return driveApi;
   }
+
+  // Future<void> _showList() async {
+  //   final driveApi = await _getDriveApi();
+  //   if (driveApi == null) {
+  //     return;
+  //   }
+
+  //   final fileList = await driveApi.files.list(
+  //       spaces: 'appDataFolder', $fields: 'files(id, name, modifiedTime)');
+  //   final files = fileList.files;
+  //   if (files == null) {
+  //     print('no data found in drive');
+  //   }
+
+  //   final alert = AlertDialog(
+  //     title: Text("Item List"),
+  //     content: SingleChildScrollView(
+  //       child: ListBody(
+  //         children: files?.map((e) => Text(e.name ?? "no-name")).toList(),
+  //       ),
+  //     ),
+  //   );
+
+  //   print('data found');
+  // }
 }
 
 class GoogleAuthClient extends http.BaseClient {

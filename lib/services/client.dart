@@ -28,8 +28,9 @@ class GoogleDriveClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (request, handler) {
-          if (token != null && token != '')
+          if (token != null && token != '') {
             request.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(request);
         },
       ),
@@ -44,8 +45,7 @@ class GoogleDriveClient {
       queryParameters: {
         'fields':
             'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
-        'spaces':
-            _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
+        // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
       },
     );
 
@@ -94,6 +94,15 @@ class GoogleDriveClient {
     );
   }
 
+  // Future createFolder(
+  //     GoogleDriveFileUploadMetaData metaData, String name) async {
+  //   final fileMetadata = {
+  //     "name": 'Invoices',
+  //     "mimeType": 'application/vnd.google-apps.folder',
+  //   };
+  //   final file = await 
+  // }
+
   /// create a google file
   Future<GoogleDriveFileMetaData> create(
       GoogleDriveFileUploadMetaData metaData, File file,
@@ -107,8 +116,7 @@ class GoogleDriveClient {
         'uploadType': 'resumable',
       },
       data: {
-        'parents':
-            ['root'],
+        'parents': ['root'],
         'properties': metaData.properties,
         'appProperties': metaData.appProperties,
         'description': metaData.description,

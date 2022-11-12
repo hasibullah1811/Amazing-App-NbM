@@ -1,12 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/utils/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import 'files_list_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -77,12 +82,75 @@ class _LandingScreenState extends State<LandingScreen> {
               Column(
                 children: [
                   Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                        final files_list =
+                            await authService.getAllFilesFromGoogleDrive();
+                        print(files_list);
+                        authService.progressPercentage = 0;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: ((context) =>
+                                FilesListScreen(fileList: files_list)),
+                          ),
+                        );
+                      },
+                      child: CustomButtonLarge(
+                        title: "Browse Files on your google drive",
+                        color: Colors.blue.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                        // await authService.googleSignInNew();
+                        final path = await FlutterDocumentPicker.openDocument();
+                        File newFile = File(path as String);
+                        final dataBytes = await newFile.readAsBytes();
+                        final bytesBase = base64Encode(dataBytes);
+                        print(bytesBase);
+                        // print(path);
+                        // var googleDrive = GoogleDrive();
+                        // googleDrive.upload(File(path as String));
+                        try {
+                          var id = await authService
+                              .uploadFilesToGoogleDrive(newFile);
+                          print('id : $id');
+                          // var all_files = await authService.
+                        } catch (error) {
+                          print('error occured');
+                        } finally {
+                          print('uploaded');
+                        }
+                      },
+                      child: CustomButtonLarge(
+                        title: "Upload Files to your google drive",
+                        color: Colors.green.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Welcome to your account, Exciting features coming soon',
                       textAlign: TextAlign.center,
                     ),
                   ),
+                  authService.progressPercentage != 0
+                      ? Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Progress: ${authService.progressPercentage} %',
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Container(),
                   authService.loading
                       ? CircularProgressIndicator()
                       : Container(),

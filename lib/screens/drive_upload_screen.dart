@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:amazing_app/screens/files_list_screen.dart';
 import 'package:amazing_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
@@ -47,30 +48,83 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
     return Visibility(
       visible: screenLoaded,
       child: Scaffold(
-        body: Center(
-            child: ElevatedButton(
-          child: const Text('Upload'),
-          onPressed: () async {
-            // await authService.googleSignInNew();
-            final path = await FlutterDocumentPicker.openDocument();
-            File newFile = File(path as String);
-            final dataBytes = await newFile.readAsBytes();
-            final bytesBase = base64Encode(dataBytes);
-            print(bytesBase);
-            // print(path);
-            // var googleDrive = GoogleDrive();
-            // googleDrive.upload(File(path as String));
-            try {
-              var id = await authService.uploadFilesToGoogleDrive(newFile);
-              print('id : $id');
-            } catch (error) {
-              print('error occured');
-            } finally {
-              print('uploaded');
-            }
-          },
-        )),
-      ),
+          body: Center(
+        child: Column(children: [
+          SizedBox(
+            height: 200,
+          ),
+          ElevatedButton(
+            child: const Text('Upload'),
+            onPressed: () async {
+              // await authService.googleSignInNew();
+              final path = await FlutterDocumentPicker.openDocument();
+              File newFile = File(path as String);
+              final dataBytes = await newFile.readAsBytes();
+              final bytesBase = base64Encode(dataBytes);
+              print(bytesBase);
+              // print(path);
+              // var googleDrive = GoogleDrive();
+              // googleDrive.upload(File(path as String));
+              try {
+                var id = await authService.uploadFilesToGoogleDrive(newFile);
+                print('id : $id');
+                // var all_files = await authService.
+              } catch (error) {
+                print('error occured');
+              } finally {
+                print('uploaded');
+              }
+            },
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final files_list = await authService.getAllFilesFromGoogleDrive();
+              print(files_list);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: ((context) =>
+                          FilesListScreen(fileList: files_list))));
+            },
+            child: Text("Get List of files"),
+          ),
+          // ElevatedButton(
+          //     onPressed: () async {
+          //       final files_list = await authService.getAllFiles();
+          //       print(files_list);
+          //     },
+          //     child: Text("Get List of files other api")),
+          ElevatedButton(
+              onPressed: () async {
+                final files_list =
+                    await authService.createFolder("Folder Name Here");
+                print(files_list);
+              },
+              child: Text("Create Folder")),
+          ElevatedButton(
+              onPressed: () async {
+                final files_list = await authService.getDrives();
+                print(files_list);
+              },
+              child: Text("Get Drives")),
+          ElevatedButton(
+            onPressed: () async {
+              //1jZsUbLryBbXBJBn0UYXC1aAumLYTnczV
+              //1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C
+              final file = await authService
+                  .downloadFile("1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C");
+              print(file);
+            },
+            child: Text("Download Files"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              authService.handleSignOut();
+            },
+            child: Text("Log Out"),
+          ),
+        ]),
+      )),
     );
   }
 }

@@ -49,8 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
           print('Silent Sign In');
           print(currentUser!.email.toString());
           authService.currentUser = currentUser;
-          // Navigator.pushNamed(context, LandingScreen.routeName);
-          Navigator.pushNamed(context, DriveUploadScreen.routeName);
+          Navigator.pushNamed(context, LandingScreen.routeName);
+          // Navigator.pushNamed(context, DriveUploadScreen.routeName);
         }
       });
       authService.googleSignIn.signInSilently();
