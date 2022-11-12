@@ -98,6 +98,73 @@ class AuthService with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive() async {
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    var files = await googleDriveClient.list();
+    files.forEach((element) async {
+      var file = await googleDriveClient.get(element.id as String);
+      print(file.name);
+    });
+    return files;
+  }
+
+  // Future getAllDrives() async {
+  //   final GoogleSignInAccount? googleUser =
+  //       await googleSignIn.signIn().catchError((onError) {});
+  //   final GoogleSignInAuthentication googleAuth =
+  //       await googleUser!.authentication;
+  //   // print('c1');
+  //   var googleDriveClient =
+  //       GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+  //   var drives = await googleDriveClient.driveList();
+  // }
+
+  Future createFolder() async {
+    final driveApi = await _getDriveApi();
+    final driveFile = drive.File();
+    driveFile.mimeType = "application/vnd.google-apps.folder";
+    driveFile.name = "Api-Folder";
+
+    final folder = driveApi?.files.create(driveFile);
+    print(folder);
+  }
+
+  Future getDrives() async {
+    final driveApi = await _getDriveApi();
+    final drives = await driveApi?.drives.list();
+    drive.DriveList? driveList = drives as drive.DriveList;
+
+    if (driveList != null) {
+      print(driveList.drives);
+      driveList.drives?.forEach((element) {
+        print(element.name);
+      });
+    }
+
+    return driveList;
+  }
+
+  Future getFolderOrFile(String fileId) async {
+    final driveApi = await _getDriveApi();
+    // final driveFile = drive.File();
+    // driveFile.mimeType = "application/vnd.google-apps.folder";
+    final folder = driveApi?.files.get(fileId);
+    return folder;
+  }
+
+  Future getAllFiles(String fileId) async {
+    final driveApi = await _getDriveApi();
+    final files = driveApi?.files.list();
+    print(files);
+    return files;
+  }
+
   Future uploadFilesToGoogleDrive(File file) async {
     // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
     // final driveApi = await _getDriveApi();
@@ -244,6 +311,31 @@ class AuthService with ChangeNotifier {
     final driveApi = drive.DriveApi(client);
     return driveApi;
   }
+
+  // Future<void> _showList() async {
+  //   final driveApi = await _getDriveApi();
+  //   if (driveApi == null) {
+  //     return;
+  //   }
+
+  //   final fileList = await driveApi.files.list(
+  //       spaces: 'appDataFolder', $fields: 'files(id, name, modifiedTime)');
+  //   final files = fileList.files;
+  //   if (files == null) {
+  //     print('no data found in drive');
+  //   }
+
+  //   final alert = AlertDialog(
+  //     title: Text("Item List"),
+  //     content: SingleChildScrollView(
+  //       child: ListBody(
+  //         children: files?.map((e) => Text(e.name ?? "no-name")).toList(),
+  //       ),
+  //     ),
+  //   );
+
+  //   print('data found');
+  // }
 }
 
 class GoogleAuthClient extends http.BaseClient {
