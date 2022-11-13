@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/games/v1.dart';
 import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 
@@ -99,30 +100,58 @@ class _FilesListScreenState extends State<FilesListScreen> {
                             color: Colors.blue[50]),
                         child: ListTile(
                           iconColor: Colors.blue,
-                          leading: IconButton(
-                            onPressed: () async {
-                              print(
-                                widget.fileList[index].id.toString(),
-                              );
-                              File file = await authService.downloadFile(
-                                widget.fileList[index].id.toString(),
-                                context,
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                              // OpenFile.open(file.path);
-                            },
-                            icon: const Icon(CupertinoIcons.cloud_download),
-                          ),
+                          leading: widget.fileList[index].mimeType !=
+                                  "application/vnd.google-apps.folder"
+                              ? IconButton(
+                                  onPressed: () async {
+                                    print(
+                                      widget.fileList[index].id.toString(),
+                                    );
+                                    File file = await authService.downloadFile(
+                                      widget.fileList[index].id.toString(),
+                                      context,
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                    // OpenFile.open(file.path);
+                                  },
+                                  icon:
+                                      const Icon(CupertinoIcons.cloud_download),
+                                )
+                              : IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(CupertinoIcons.folder)),
                           subtitle: Text(getFormattedDate(
                               widget.fileList[index].modifiedTime.toString())),
-                          trailing: Text(
-                            formatBytes(
-                                widget.fileList[index].size ?? 0 as int, 2),
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          title: Text(
-                            widget.fileList[index].name.toString(),
+                          trailing: widget.fileList[index].mimeType !=
+                                  "application/vnd.google-apps.folder"
+                              ? Text(
+                                  formatBytes(
+                                      widget.fileList[index].size ?? 0 as int,
+                                      2),
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : const Text(''),
+                          title: GestureDetector(
+                            onTap: () async {
+                              if (widget.fileList[index].mimeType ==
+                                  "application/vnd.google-apps.folder") {
+                                final files_list = await authService
+                                    .getAllFileFromGoogleDriveFromSpaceId(
+                                        widget.fileList[index].id as String);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: ((context) =>
+                                        FilesListScreen(fileList: files_list)),
+                                  ),
+                                );
+                              }
+                              
+                            },
+                            child: Text(
+                              widget.fileList[index].name.toString(),
+                            ),
                           ),
                         ),
                       ),

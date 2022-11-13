@@ -91,7 +91,8 @@ class _LandingScreenState extends State<LandingScreen> {
                                 //1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq
                                 final files_list = await authService
                                     .getAllFileFromGoogleDriveFromSpaceId(
-                                        "1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq");
+                                        "root");
+
                                 print(files_list);
                                 authService.progressPercentage = 0;
                                 Navigator.push(

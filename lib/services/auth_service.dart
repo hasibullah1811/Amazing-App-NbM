@@ -132,7 +132,7 @@ class AuthService with ChangeNotifier {
     // print('c1');
     var googleDriveClient =
         GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    var files = await googleDriveClient.listSpace(id);
+    var files = await googleDriveClient.listSpaceFolder(id);
     loading = false;
     notifyListeners();
     return files;
