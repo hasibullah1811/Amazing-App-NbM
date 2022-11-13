@@ -137,6 +137,20 @@ class _LandingScreenState extends State<LandingScreen> {
                   //   ),
                   // ),
                   Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                          // We will show the downloaded file here for encryption and decryption
+                          
+                      },
+                      child: CustomButtonLarge(
+                        title: "Downloaded Files",
+                        color: Colors.green.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Welcome to your account, Exciting features coming soon',
