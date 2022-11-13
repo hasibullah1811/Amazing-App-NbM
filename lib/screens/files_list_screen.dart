@@ -22,6 +22,9 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+  static const snackBar = SnackBar(
+    content: Text('File downloaded successfully!'),
+  );
 
   @override
   void didChangeDependencies() {
@@ -86,7 +89,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
               height: 500,
               width: size.width,
               child: ListView.builder(
-                  itemCount: 20,
+                  itemCount: widget.fileList.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -105,6 +108,8 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                 widget.fileList[index].id.toString(),
                                 context,
                               );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
                               // OpenFile.open(file.path);
                             },
                             icon: const Icon(CupertinoIcons.cloud_download),
