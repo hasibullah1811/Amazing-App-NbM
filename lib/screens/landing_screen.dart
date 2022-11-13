@@ -81,32 +81,42 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
-                    child: InkWell(
-                      onTap: () async {
-                        final files_list =
-                            await authService.getAllFilesFromGoogleDrive();
-                        print(files_list);
-                        authService.progressPercentage = 0;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: ((context) =>
-                                FilesListScreen(fileList: files_list)),
-                          ),
-                        );
-                      },
-                      child: CustomButtonLarge(
-                        title: "Browse Files on your google drive",
+                  InkWell(
+                    onTap: () async {
+                      final files_list =
+                          await authService.getAllFilesFromGoogleDrive();
+                      print(files_list);
+                      authService.progressPercentage = 0;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: ((context) =>
+                              FilesListScreen(fileList: files_list)),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 170,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
                         color: Colors.blue.withOpacity(0.8),
                       ),
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Browse Files on your google drive",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      )),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(
-                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: InkWell(
                       onTap: () async {
                         // await authService.googleSignInNew();
@@ -129,12 +139,51 @@ class _LandingScreenState extends State<LandingScreen> {
                           print('uploaded');
                         }
                       },
-                      child: CustomButtonLarge(
-                        title: "Upload Files to your google drive",
-                        color: Colors.green.withOpacity(0.8),
+                      child: Container(
+                        height: 50,
+                        width: 170,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.green.withOpacity(0.8),
+                        ),
+                        child: Center(
+                            child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Upload Files to your google drive",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )),
                       ),
                     ),
                   ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(
+                  //       left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                  //   child: InkWell(
+                  //     onTap: () async {},
+                  //     child: CustomButtonLarge(
+                  //       title: "Browse Files on your google drive",
+                  //       color: Colors.blue.withOpacity(0.8),
+                  //     ),
+                  //   ),
+                  // ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(
+                  //       left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                  //   child: InkWell(
+                  //     onTap: () async {
+
+                  //     },
+                  //     child: CustomButtonLarge(
+                  //       title: "Upload Files to your google drive",
+                  //       color: Colors.green.withOpacity(0.8),
+                  //     ),
+                  //   ),
+                  // ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(

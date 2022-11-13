@@ -53,6 +53,26 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 ),
               ),
             ),
+            authService.fileSavedLocation.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.green.withOpacity(0.2),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'File saved on location: ${authService.fileSavedLocation}',
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(),
             authService.progressPercentage != 0
                 ? Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -63,7 +83,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                   )
                 : Container(),
             Container(
-              height: 600,
+              height: 500,
               width: size.width,
               child: ListView.builder(
                   itemCount: 20,
@@ -83,8 +103,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
                               );
                               File file = await authService.downloadFile(
                                 widget.fileList[index].id.toString(),
+                                context,
                               );
-                              OpenFile.open(file.path);
+                              // OpenFile.open(file.path);
                             },
                             icon: const Icon(CupertinoIcons.cloud_download),
                           ),

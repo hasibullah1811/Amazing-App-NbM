@@ -24,6 +24,7 @@ class AuthService with ChangeNotifier {
 
   late BuildContext navigationContext;
   int progressPercentage = 0;
+  String fileSavedLocation = '';
   bool loading = false;
   bool signedIn = false;
   late client.Dio dio;
@@ -156,7 +157,7 @@ class AuthService with ChangeNotifier {
     return driveList;
   }
 
-  Future downloadFile(String fileId) async {
+  Future downloadFile(String fileId, BuildContext context) async {
     loading = true;
     progressPercentage = 0;
     notifyListeners();
@@ -177,8 +178,14 @@ class AuthService with ChangeNotifier {
     final fileBaseName = file.absolute.toString();
     final fileN = (fileBaseName.split('/').last);
     final fileName = fileN.split('\'').first;
+    // var routerArgs =
+    //     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    // String fileName = routerArgs['fileName'];
     saveFile(fileName, file);
+
     print('saved file: ${fileName}');
+    fileSavedLocation = file.path;
+    notifyListeners();
     loading = false;
     return file;
   }
