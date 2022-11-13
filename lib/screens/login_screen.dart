@@ -102,18 +102,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: InkWell(
                       onTap: () async {
                         await authService.googleSignInNew();
-                        Navigator.pushNamed(context, LandingScreen.routeName);
-                        // if (authService.pictureUploaded) {
-                        //   Navigator.pushNamed(
-                        //     context,
-                        //     LandingScreen.routeName,
-                        //   );
-                        // } else {
-                        //   Navigator.pushNamed(
-                        //     context,
-                        //     CaptureFaceInstructionScreen.routeName,
-                        //   );
-                        // }
+                        // Navigator.pushNamed(
+                        // context, DriveUploadScreen.routeName);
+                        if (authService.pictureUploaded) {
+                          Navigator.pushNamed(
+                            context,
+                            LandingScreen.routeName,
+                          );
+                        } else {
+                          Navigator.pushNamed(
+                            context,
+                            CaptureFaceInstructionScreen.routeName,
+                          );
+                        }
                       },
                       child: CustomButtonLarge(title: 'Sign In'),
                     ),

@@ -38,7 +38,7 @@ class GoogleDriveClient {
     _dio.options.validateStatus = (code) => code == 200 || code == 204;
   }
 
-  /// list all google files base on space
+  /// list all google files
   Future<List<GoogleDriveFileMetaData>> list() async {
     Response response = await _dio.get(
       'https://www.googleapis.com/drive/v3/files',
@@ -46,6 +46,37 @@ class GoogleDriveClient {
         'fields':
             'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
         // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
+      },
+    );
+
+    return (response.data['files'] as List)
+        .map(
+          (file) => GoogleDriveFileMetaData(
+            kind: file['kind'],
+            id: file['id'],
+            mimeType: file['mimeType'],
+            description: file['description'],
+            name: file['name'],
+            properties: file['properties'],
+            appProperties: file['appProperties'],
+            spaces: List.castFrom(file['spaces']),
+            createdTime: DateTime.tryParse(file['createdTime']),
+            modifiedTime: DateTime.tryParse(file['modifiedTime']),
+            size: file['size'] != null ? int.tryParse(file['size']) : null,
+          ),
+        )
+        .toList();
+  }
+
+  /// list all google files base on space
+  Future<List<GoogleDriveFileMetaData>> listSpace(String folderId) async {
+    Response response = await _dio.get(
+      'https://www.googleapis.com/drive/v3/files',
+      queryParameters: {
+        'fields':
+            'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
+        // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
+        'spaces': folderId,
       },
     );
 
@@ -100,13 +131,14 @@ class GoogleDriveClient {
   //     "name": 'Invoices',
   //     "mimeType": 'application/vnd.google-apps.folder',
   //   };
-  //   final file = await 
+  //   final file = await
   // }
 
   /// create a google file
   Future<GoogleDriveFileMetaData> create(
       GoogleDriveFileUploadMetaData metaData, File file,
-      {required Function(int, int) onUploadProgress, String parent = "root"}) async {
+      {required Function(int, int) onUploadProgress,
+      String parent = "root"}) async {
     print('check 1 ${file.path}');
 
     try {} catch (e) {}
