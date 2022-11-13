@@ -186,7 +186,7 @@ class GoogleDriveClient {
   Future<GoogleDriveFileMetaData> create(
       GoogleDriveFileUploadMetaData metaData, File file,
       {required Function(int, int) onUploadProgress,
-      String parent = "root"}) async {
+      required String parent}) async {
     print('check 1 ${file.path}');
 
     try {} catch (e) {}

@@ -66,7 +66,7 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
               // var googleDrive = GoogleDrive();
               // googleDrive.upload(File(path as String));
               try {
-                var id = await authService.uploadFilesToGoogleDrive(newFile);
+                var id = await authService.uploadFilesToGoogleDrive(newFile, "root");
                 print('id : $id');
                 // var all_files = await authService.
               } catch (error) {

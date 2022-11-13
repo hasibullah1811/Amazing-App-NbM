@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:googleapis/games/v1.dart';
 import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
@@ -14,8 +16,14 @@ import '../services/file.dart';
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
   final List<GoogleDriveFileMetaData> fileList;
+  final bool? uploading;
+  final String currentId;
 
-  const FilesListScreen({super.key, required this.fileList});
+  const FilesListScreen(
+      {super.key,
+      required this.fileList,
+      this.uploading = false,
+      this.currentId = "root"});
 
   @override
   State<FilesListScreen> createState() => _FilesListScreenState();
@@ -25,6 +33,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
   static const snackBar = SnackBar(
     content: Text('File downloaded successfully!'),
+  );
+  static const uploadSnackBar = SnackBar(
+    content: Text('File Uploaded successfully!'),
   );
 
   @override
@@ -38,6 +49,33 @@ class _FilesListScreenState extends State<FilesListScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          print(widget.currentId);
+          final path = await FlutterDocumentPicker.openDocument();
+          File newFile = File(path as String);
+          final dataBytes = await newFile.readAsBytes();
+          final bytesBase = base64Encode(dataBytes);
+          print(bytesBase);
+          // print(path);
+          // var googleDrive = GoogleDrive();
+          // googleDrive.upload(File(path as String));
+          try {
+            var id = await authService.uploadFilesToGoogleDrive(
+                newFile, widget.currentId);
+            print('id : $id');
+
+            // var all_files = await authService.
+          } catch (error) {
+            print('error occured');
+          } finally {
+            print('uploaded');
+            ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+            authService.progressPercentage = 0;
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         elevation: 0.0,
       ),
@@ -142,12 +180,14 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: ((context) =>
-                                        FilesListScreen(fileList: files_list)),
+                                    builder: ((context) => FilesListScreen(
+                                          fileList: files_list,
+                                          currentId: widget.fileList[index].id
+                                              as String,
+                                        )),
                                   ),
                                 );
                               }
-                              
                             },
                             child: Text(
                               widget.fileList[index].name.toString(),

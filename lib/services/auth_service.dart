@@ -245,7 +245,7 @@ class AuthService with ChangeNotifier {
   //   return files;
   // }
 
-  Future uploadFilesToGoogleDrive(File file) async {
+  Future uploadFilesToGoogleDrive(File file, String parent) async {
     // var googleDrive = ga.DriveApi(authenticatedClient(client.Dio, AccessCredentials.fromJson(json)));
     // final driveApi = await _getDriveApi();
     // print(file);
@@ -299,7 +299,7 @@ class AuthService with ChangeNotifier {
       print('$currentProgress / $totalProgress');
       progressPercentage = ((currentProgress / totalProgress) * 100).floor();
       notifyListeners();
-    });
+    }, parent: parent);
     // print('c4');
     // final response =
     // await driveApi?.files.create(driveFile, uploadMedia: media);

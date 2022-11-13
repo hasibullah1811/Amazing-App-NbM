@@ -81,114 +81,54 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Column(
                 children: [
-                  // authService.pictureUploaded? 
-                  Column(
-                          children: [
-                            InkWell(
-                              onTap: () async {
-                                // final files_list = await authService
-                                // .getAllFilesFromGoogleDrive();
-                                //1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq
-                                final files_list = await authService
-                                    .getAllFileFromGoogleDriveFromSpaceId(
-                                        "root");
-
-                                print(files_list);
-                                authService.progressPercentage = 0;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: ((context) =>
-                                        FilesListScreen(fileList: files_list)),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                height: 50,
-                                width: 170,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Colors.blue.withOpacity(0.8),
-                                ),
-                                child: Center(
-                                    child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Browse Files on your google drive",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                )),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: InkWell(
-                                onTap: () async {
-                                  // await authService.googleSignInNew();
-                                  final path = await FlutterDocumentPicker
-                                      .openDocument();
-                                  File newFile = File(path as String);
-                                  final dataBytes = await newFile.readAsBytes();
-                                  final bytesBase = base64Encode(dataBytes);
-                                  print(bytesBase);
-                                  // print(path);
-                                  // var googleDrive = GoogleDrive();
-                                  // googleDrive.upload(File(path as String));
-                                  try {
-                                    var id = await authService
-                                        .uploadFilesToGoogleDrive(newFile);
-                                    print('id : $id');
-                                  } catch (error) {
-                                    print('error occured');
-                                  } finally {
-                                    print('uploaded');
-                                  }
-                                },
-                                child: Container(
-                                  height: 50,
-                                  width: 170,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.green.withOpacity(0.8),
-                                  ),
-                                  child: Center(
-                                      child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Upload Files to your google drive",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  )),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      // : Container(),
-
-                  // Padding(
-                  //   padding: const EdgeInsets.only(
-                  //       left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
-                  //   child: InkWell(
-                  //     onTap: () async {},
-                  //     child: CustomButtonLarge(
-                  //       title: "Browse Files on your google drive",
-                  //       color: Colors.blue.withOpacity(0.8),
-                  //     ),
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                        final files_list =
+                            await authService.getAllFileFromGoogleDriveFromSpaceId("root");
+                        print(files_list);
+                        authService.progressPercentage = 0;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: ((context) =>
+                                FilesListScreen(fileList: files_list)),
+                          ),
+                        );
+                      },
+                      child: CustomButtonLarge(
+                        title: "Browse Files on your google drive",
+                        color: Colors.blue.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
                   // Padding(
                   //   padding: const EdgeInsets.only(
                   //       left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
                   //   child: InkWell(
                   //     onTap: () async {
-
+                  //       // await authService.googleSignInNew();
+                  //       final path = await FlutterDocumentPicker.openDocument();
+                  //       File newFile = File(path as String);
+                  //       final dataBytes = await newFile.readAsBytes();
+                  //       final bytesBase = base64Encode(dataBytes);
+                  //       print(bytesBase);
+                  //       // print(path);
+                  //       // var googleDrive = GoogleDrive();
+                  //       // googleDrive.upload(File(path as String));
+                  //       try {
+                  //         var id = await authService
+                  //             .uploadFilesToGoogleDrive(newFile, "root");
+                  //         print('id : $id');
+                          
+                  //         // var all_files = await authService.
+                  //       } catch (error) {
+                  //         print('error occured');
+                  //       } finally {
+                  //         print('uploaded');
+                  //       }
                   //     },
                   //     child: CustomButtonLarge(
                   //       title: "Upload Files to your google drive",
