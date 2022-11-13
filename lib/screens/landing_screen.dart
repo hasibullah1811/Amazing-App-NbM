@@ -81,13 +81,17 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Column(
                 children: [
-                  authService.pictureUploaded
-                      ? Column(
+                  // authService.pictureUploaded? 
+                  Column(
                           children: [
                             InkWell(
                               onTap: () async {
+                                // final files_list = await authService
+                                // .getAllFilesFromGoogleDrive();
+                                //1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq
                                 final files_list = await authService
-                                    .getAllFilesFromGoogleDrive();
+                                    .getAllFileFromGoogleDriveFromSpaceId(
+                                        "1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq");
                                 print(files_list);
                                 authService.progressPercentage = 0;
                                 Navigator.push(
@@ -136,8 +140,6 @@ class _LandingScreenState extends State<LandingScreen> {
                                     var id = await authService
                                         .uploadFilesToGoogleDrive(newFile);
                                     print('id : $id');
-
-                                    // var all_files = await authService.
                                   } catch (error) {
                                     print('error occured');
                                   } finally {
@@ -166,8 +168,8 @@ class _LandingScreenState extends State<LandingScreen> {
                               ),
                             ),
                           ],
-                        )
-                      : Container(),
+                        ),
+                      // : Container(),
 
                   // Padding(
                   //   padding: const EdgeInsets.only(

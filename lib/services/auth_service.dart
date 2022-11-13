@@ -114,13 +114,29 @@ class AuthService with ChangeNotifier {
     var files = await googleDriveClient.list();
     files.forEach((element) async {
       var file = await googleDriveClient.get(element.id as String);
-      print("${file.name} - ${file.id}");
+      print("${file.name} - ${file.id} - ${file.spaces}");
     });
     loading = false;
     notifyListeners();
     return files;
   }
 
+  Future<List<GoogleDriveFileMetaData>> getAllFileFromGoogleDriveFromSpaceId(
+      String id) async {
+    loading = true;
+    notifyListeners();
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    // print('c1');
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    var files = await googleDriveClient.listSpace(id);
+    loading = false;
+    notifyListeners();
+    return files;
+  }
   // Future getAllDrives() async {
   //   final GoogleSignInAccount? googleUser =
   //       await googleSignIn.signIn().catchError((onError) {});

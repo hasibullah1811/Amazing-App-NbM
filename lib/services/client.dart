@@ -72,11 +72,14 @@ class GoogleDriveClient {
   Future<List<GoogleDriveFileMetaData>> listSpace(String folderId) async {
     Response response = await _dio.get(
       'https://www.googleapis.com/drive/v3/files',
+      // 'https://www.googleapis.com/drive/v3/files?q=\"$folderId\"+in+parents&fields=files(*)',
       queryParameters: {
         'fields':
             'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
+            // 'files(*)',
+        'q': '\"$folderId\" in parents',
+        // '1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq',
         // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
-        'spaces': folderId,
       },
     );
 
