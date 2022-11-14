@@ -176,7 +176,8 @@ class AuthService with ChangeNotifier {
     return driveList;
   }
 
-  Future<File?> downloadFile(String fileId, BuildContext context) async {
+  Future<File?> downloadFile(
+      String fileId, BuildContext context, String file_name) async {
     // var storage = await getExternalStorageDirectories();
     // print(storage);
 
@@ -192,25 +193,49 @@ class AuthService with ChangeNotifier {
       // print('c1');
       var googleDriveClient =
           GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-      final fileForName = await getFolderOrFile(fileId);
-      final file = await googleDriveClient.download(
-          fileId, fileForName.name as String, onDownloadProgress: (i, l) {
-        print('$i/$l');
-        progressPercentage = ((i / l) * 100).floor();
+      // final fileForName = await getFolderOrFile(fileId);
+      Directory? newPath = await getExternalStorageDirectory();
+      final filePath = "${newPath?.path}/$file_name";
+      print(" file path: " + filePath);
+      print(" file name: " + file_name);
+      final fileExist = await File(filePath).exists();
+      if (fileExist) {
+        loading = false;
         notifyListeners();
-      });
-      final fileBaseName = file.absolute.toString();
-      final fileN = (fileBaseName.split('/').last);
-      final fileName = fileN.split('\'').first;
+        return File(filePath);
+        // print("file exist");
+      } else {
+        print("file not exist");
+        File file = await googleDriveClient.download(fileId, file_name,
+            onDownloadProgress: (i, l) {
+          print('$i/$l');
+          progressPercentage = ((i / l) * 100).floor();
+          notifyListeners();
+        });
+        final newFile = await saveFile(file_name, file);
+        loading = false;
+        // fileSavedLocation = newFile.path;
+        notifyListeners();
+        return newFile;
+      }
+
+      // final file = await File(filePath).exists()
+      //     ? File(filePath)
+      //     : {
+
+      //         }),
+
+      //       };
+      // final fileBaseName = file.absolute.toString();
+      // final fileN = (fileBaseName.split('/').last);
+      // final fileName = fileN.split('\'').first;
       // var routerArgs =
       //     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       // String fileName = routerArgs['fileName'];
-      final newFile = await saveFile(fileName, file);
 
-      loading = false;
-      return newFile;
+      // loading = false;
+      // return newFile;
     }
-    return null;
   }
 
   Future saveFile(String fileName, File file) async {
@@ -224,9 +249,6 @@ class AuthService with ChangeNotifier {
     print('new path: ${newPath?.path}/$fileName');
 
     return newFile;
-
-
-    
   }
 
   Future<String> getFilePath(String fileName) async {

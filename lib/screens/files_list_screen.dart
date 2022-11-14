@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
+import 'package:amazing_app/screens/pdf_view_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
@@ -146,22 +148,39 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                     print(
                                       widget.fileList[index].id.toString(),
                                     );
-                                    File? newFile = await authService.downloadFile(
+                                    File? newFile =
+                                        await authService.downloadFile(
                                       widget.fileList[index].id.toString(),
                                       context,
-                                      
+                                      widget.fileList[index].name.toString(),
                                     );
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
+
+                                    //TODO: This work, but you need to update the UI.
                                     // OpenFile.open(file.path);
+                                    //   Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //       builder: ((context) => ImageScreen(
+                                    //             imageFile: newFile!,
+                                    //           )),
+                                    //     ),
+                                    //   );
+
+                                    //TODO: This doesn't work
+                                    // File pdfFile = File(newFile!.path);
+                                    // final pdfDocument =
+                                    //     await PDFDocument.fromFile(pdfFile);
                                     // Navigator.push(
                                     //   context,
                                     //   MaterialPageRoute(
-                                    //     builder: ((context) => ImageScreen(
-                                    //       imageFile: newFile!,
+                                    //     builder: ((context) => PdfViewScreen(
+                                    //           pdfFile: newFile!,
                                     //         )),
                                     //   ),
                                     // );
+                                    // // print(newFile?.path);
                                   },
                                   icon:
                                       const Icon(CupertinoIcons.cloud_download),
