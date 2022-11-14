@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:amazing_app/services/client.dart';
@@ -13,9 +14,12 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:intl/intl.dart';
+import 'package:open_document/open_document.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
@@ -173,46 +177,67 @@ class AuthService with ChangeNotifier {
     return driveList;
   }
 
-  Future downloadFile(String fileId, BuildContext context) async {
-    loading = true;
-    progressPercentage = 0;
-    notifyListeners();
-    final GoogleSignInAccount? googleUser =
-        await googleSignIn.signIn().catchError((onError) {});
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-    // print('c1');
-    var googleDriveClient =
-        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    final fileForName = await getFolderOrFile(fileId);
-    final file = await googleDriveClient.download(
-        fileId, fileForName.name as String, onDownloadProgress: (i, l) {
-      print('$i/$l');
-      progressPercentage = ((i / l) * 100).floor();
-      notifyListeners();
-    });
-    final fileBaseName = file.absolute.toString();
-    final fileN = (fileBaseName.split('/').last);
-    final fileName = fileN.split('\'').first;
-    // var routerArgs =
-    //     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    // String fileName = routerArgs['fileName'];
-    saveFile(fileName, file);
+  Future<File?> downloadFile(String fileId, BuildContext context) async {
+    // var storage = await getExternalStorageDirectories();
+    // print(storage);
 
-    print('saved file: ${fileName}');
-    fileSavedLocation = file.path;
-    notifyListeners();
-    loading = false;
-    return file;
+    if (await Permission.storage.request().isGranted) {
+      // Either the permission was already granted before or the user just granted it.
+      loading = true;
+      progressPercentage = 0;
+      notifyListeners();
+      final GoogleSignInAccount? googleUser =
+          await googleSignIn.signIn().catchError((onError) {});
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
+      // print('c1');
+      var googleDriveClient =
+          GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+      final fileForName = await getFolderOrFile(fileId);
+      final file = await googleDriveClient.download(
+          fileId, fileForName.name as String, onDownloadProgress: (i, l) {
+        print('$i/$l');
+        progressPercentage = ((i / l) * 100).floor();
+        notifyListeners();
+      },);
+      final fileBaseName = file.absolute.toString();
+      final fileN = (fileBaseName.split('/').last);
+      final fileName = fileN.split('\'').first;
+      final newFile = await saveFile(fileName, file, fileId);
+
+      loading = false;
+      return newFile;
+
+
+      
+    }
+    return null;
   }
 
-  void saveFile(String fileName, File file) async {
+  Future saveFile(String fileName, File file, String fileId) async {
     String path = await getFilePath(fileName);
-    // final File newFile = await file.copy(path);
+    Directory? newPath = await getExternalStorageDirectory();
 
-    //MODIFY these
-    file.writeAsBytes(Uint8List(await file.length()));
-    // print('save file location: ${newFile.path}');
+    file.copy('${newPath?.path}/$fileName');
+    File newFile = File('${newPath?.path}/$fileName');
+
+    print('saved file: ${fileName}');
+    print('new path: ${newPath?.path}/$fileName');
+
+    return newFile;
+
+    // loading = true;
+    // progressPercentage = 0;
+    // notifyListeners();
+    // final GoogleSignInAccount? googleUser =
+    //     await googleSignIn.signIn().catchError((onError) {});
+    // final GoogleSignInAuthentication googleAuth =
+    //     await googleUser!.authentication;
+    // // print('c1');
+    // var googleDriveClient =
+    //     GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    // final fileForName = await getFolderOrFile(fileId);
+
   }
 
   Future<String> getFilePath(String fileName) async {

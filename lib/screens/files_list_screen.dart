@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../con/constant_functions.dart';
 import '../services/auth_service.dart';
 import '../services/file.dart';
+import 'image_viewing_screen.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -145,13 +146,21 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                     print(
                                       widget.fileList[index].id.toString(),
                                     );
-                                    File file = await authService.downloadFile(
+                                    File? newFile = await authService.downloadFile(
                                       widget.fileList[index].id.toString(),
                                       context,
                                     );
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
                                     // OpenFile.open(file.path);
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: ((context) => ImageScreen(
+                                    //       imageFile: newFile!,
+                                    //         )),
+                                    //   ),
+                                    // );
                                   },
                                   icon:
                                       const Icon(CupertinoIcons.cloud_download),
