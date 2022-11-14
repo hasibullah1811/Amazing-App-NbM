@@ -7,15 +7,6 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 <uses-permission android:name="android.permission.CAMERA" />
 
-<provider
-        android:name="androidx.core.content.FileProvider"
-        android:authorities="com.example.open_document_example.fileprovider"
-        android:exported="false"
-        android:grantUriPermissions="true">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/provider_paths" />
-    </provider>
    <application
         android:label="amazing_app"
         android:name="${applicationName}"
@@ -23,8 +14,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:requestLegacyExternalStorage="true"
-            android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"

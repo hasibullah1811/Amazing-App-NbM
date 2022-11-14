@@ -149,6 +149,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                     File? newFile = await authService.downloadFile(
                                       widget.fileList[index].id.toString(),
                                       context,
+                                      
                                     );
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);

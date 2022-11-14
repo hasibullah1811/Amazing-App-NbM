@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:intl/intl.dart';
-import 'package:open_document/open_document.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
@@ -199,22 +198,22 @@ class AuthService with ChangeNotifier {
         print('$i/$l');
         progressPercentage = ((i / l) * 100).floor();
         notifyListeners();
-      },);
+      });
       final fileBaseName = file.absolute.toString();
       final fileN = (fileBaseName.split('/').last);
       final fileName = fileN.split('\'').first;
-      final newFile = await saveFile(fileName, file, fileId);
+      // var routerArgs =
+      //     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+      // String fileName = routerArgs['fileName'];
+      final newFile = await saveFile(fileName, file);
 
       loading = false;
       return newFile;
-
-
-      
     }
     return null;
   }
 
-  Future saveFile(String fileName, File file, String fileId) async {
+  Future saveFile(String fileName, File file) async {
     String path = await getFilePath(fileName);
     Directory? newPath = await getExternalStorageDirectory();
 
@@ -226,18 +225,8 @@ class AuthService with ChangeNotifier {
 
     return newFile;
 
-    // loading = true;
-    // progressPercentage = 0;
-    // notifyListeners();
-    // final GoogleSignInAccount? googleUser =
-    //     await googleSignIn.signIn().catchError((onError) {});
-    // final GoogleSignInAuthentication googleAuth =
-    //     await googleUser!.authentication;
-    // // print('c1');
-    // var googleDriveClient =
-    //     GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    // final fileForName = await getFolderOrFile(fileId);
 
+    
   }
 
   Future<String> getFilePath(String fileName) async {
