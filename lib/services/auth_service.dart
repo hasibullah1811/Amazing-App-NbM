@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -155,6 +156,32 @@ class AuthService with ChangeNotifier {
     }
 
     return driveList;
+  }
+
+  ///todo: work on this...
+  Future<void> downloadPDF({required String id}) async {
+    // requests permission for downloading the file
+    //bool hasPermission = await _requestWritePermission();
+    //if (!hasPermission) return;
+
+    // gets the directory where we will download the file.
+    var dir = await getApplicationDocumentsDirectory();
+
+    // You should put the name you want for the file here.
+    // Take in account the extension
+    String fileName = "random.pdf";
+
+    // downloads the file
+    client.Dio dio = client.Dio();
+    await dio.download('https://www.googleapis.com/drive/v3/files/$id',
+        "${dir.path}/$fileName", onReceiveProgress: (received, total) {
+      int downloadPercentage = ((received / total) * 100).floor();
+      print(downloadPercentage);
+    });
+
+    int downloadPercentage = 0;
+    // opens the file
+    OpenFile.open("${dir.path}/$fileName", type: 'application/pdf');
   }
 
   Future downloadFile(String fileId, BuildContext context) async {

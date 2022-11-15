@@ -110,7 +110,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                               );
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
-                              // OpenFile.open(file.path);
+                              OpenFile.open(file.path, type: "application/pdf");
                             },
                             icon: const Icon(CupertinoIcons.cloud_download),
                           ),
