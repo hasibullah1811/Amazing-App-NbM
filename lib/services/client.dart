@@ -72,11 +72,14 @@ class GoogleDriveClient {
   Future<List<GoogleDriveFileMetaData>> listSpace(String folderId) async {
     Response response = await _dio.get(
       'https://www.googleapis.com/drive/v3/files',
+      // 'https://www.googleapis.com/drive/v3/files?q=\"$folderId\"+in+parents&fields=files(*)',
       queryParameters: {
         'fields':
             'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
+        // 'files(*)',
+        'q': '\"$folderId\" in parents',
+        // '1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq',
         // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
-        'spaces': folderId,
       },
     );
 
@@ -97,6 +100,51 @@ class GoogleDriveClient {
           ),
         )
         .toList();
+  }
+
+  /// list all google files base on space
+  Future<List<GoogleDriveFileMetaData>> listSpaceFolder(String folderId) async {
+    Response response = await _dio.get(
+      'https://www.googleapis.com/drive/v3/files',
+      // 'https://www.googleapis.com/drive/v3/files?q=\"$folderId\"+in+parents&fields=files(*)',
+      queryParameters: {
+        'fields':
+            'files(id,name,kind,mimeType,description,properties,appProperties,spaces,createdTime,modifiedTime,size)',
+        // 'files(*)',
+        'q': '\"$folderId\" in parents',
+        // '1zdj4XT5XdsAHHnXUNlBKkBZ0myJhYBtq',
+        // _space == GoogleDriveSpace.appDataFolder ? 'appDataFolder' : null,
+      },
+    );
+
+    final files = (response.data['files'] as List)
+        .map((file) => GoogleDriveFileMetaData(
+              kind: file['kind'],
+              id: file['id'],
+              mimeType: file['mimeType'],
+              description: file['description'],
+              name: file['name'],
+              properties: file['properties'],
+              appProperties: file['appProperties'],
+              spaces: List.castFrom(file['spaces']),
+              createdTime: DateTime.tryParse(file['createdTime']),
+              modifiedTime: DateTime.tryParse(file['modifiedTime']),
+              size: file['size'] != null ? int.tryParse(file['size']) : null,
+            ))
+        .toList();
+    List<GoogleDriveFileMetaData> sorted_files = [];
+    files.forEach((element) {
+      if (element.mimeType == "application/vnd.google-apps.folder") {
+        sorted_files.add(element);
+      }
+    });
+    files.forEach((element) {
+      if (element.mimeType != "application/vnd.google-apps.folder") {
+        sorted_files.add(element);
+      }
+    });
+
+    return sorted_files;
   }
 
   /// get a google file meta data
@@ -138,7 +186,7 @@ class GoogleDriveClient {
   Future<GoogleDriveFileMetaData> create(
       GoogleDriveFileUploadMetaData metaData, File file,
       {required Function(int, int) onUploadProgress,
-      String parent = "root"}) async {
+      required String parent}) async {
     print('check 1 ${file.path}');
 
     try {} catch (e) {}

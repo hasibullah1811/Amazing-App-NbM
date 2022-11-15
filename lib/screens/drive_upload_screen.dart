@@ -66,7 +66,8 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
               // var googleDrive = GoogleDrive();
               // googleDrive.upload(File(path as String));
               try {
-                var id = await authService.uploadFilesToGoogleDrive(newFile);
+                var id =
+                    await authService.uploadFilesToGoogleDrive(newFile, "root");
                 print('id : $id');
                 // var all_files = await authService.
               } catch (error) {
@@ -111,9 +112,9 @@ class _DriveUploadScreenState extends State<DriveUploadScreen> {
             onPressed: () async {
               //1jZsUbLryBbXBJBn0UYXC1aAumLYTnczV
               //1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C
-              final file = await authService.downloadFile(
-                  "1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C", context);
-              print(file);
+              // final file = await authService.downloadFile(
+              //     "1lHZct446G_nt1bUGsx7HU9Km2AwjNl8C", context);
+              // print(file);
             },
             child: Text("Download Files"),
           ),

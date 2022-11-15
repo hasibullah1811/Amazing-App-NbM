@@ -1,20 +1,31 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
+import 'package:amazing_app/screens/pdf_view_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
+import 'package:googleapis/games/v1.dart';
 import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
-
 import '../con/constant_functions.dart';
 import '../services/auth_service.dart';
 import '../services/file.dart';
+import 'image_viewing_screen.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
   final List<GoogleDriveFileMetaData> fileList;
+  final bool? uploading;
+  final String currentId;
 
-  const FilesListScreen({super.key, required this.fileList});
+  const FilesListScreen(
+      {super.key,
+      required this.fileList,
+      this.uploading = false,
+      this.currentId = "root"});
 
   @override
   State<FilesListScreen> createState() => _FilesListScreenState();
@@ -25,11 +36,16 @@ class _FilesListScreenState extends State<FilesListScreen> {
   static const snackBar = SnackBar(
     content: Text('File downloaded successfully!'),
   );
+  static const uploadSnackBar = SnackBar(
+    content: Text('File Uploaded successfully!'),
+  );
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+    // if (Platform.isAndroid) PathProviderAndroid.registerWith();
+    // if (Platform.isIOS) PathProviderIOS.registerWith();
     authService = Provider.of<AuthService>(context);
   }
 
@@ -37,6 +53,33 @@ class _FilesListScreenState extends State<FilesListScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          print(widget.currentId);
+          final path = await FlutterDocumentPicker.openDocument();
+          File newFile = File(path as String);
+          final dataBytes = await newFile.readAsBytes();
+          final bytesBase = base64Encode(dataBytes);
+          print(bytesBase);
+          // print(path);
+          // var googleDrive = GoogleDrive();
+          // googleDrive.upload(File(path as String));
+          try {
+            var id = await authService.uploadFilesToGoogleDrive(
+                newFile, widget.currentId);
+            print('id : $id');
+
+            // var all_files = await authService.
+          } catch (error) {
+            print('error occured');
+          } finally {
+            print('uploaded');
+            ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+            authService.progressPercentage = 0;
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
         elevation: 0.0,
       ),
@@ -99,30 +142,95 @@ class _FilesListScreenState extends State<FilesListScreen> {
                             color: Colors.blue[50]),
                         child: ListTile(
                           iconColor: Colors.blue,
-                          leading: IconButton(
-                            onPressed: () async {
-                              print(
-                                widget.fileList[index].id.toString(),
-                              );
-                              File file = await authService.downloadFile(
-                                widget.fileList[index].id.toString(),
-                                context,
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                              OpenFile.open(file.path, type: "application/pdf");
-                            },
-                            icon: const Icon(CupertinoIcons.cloud_download),
-                          ),
+                          leading: widget.fileList[index].mimeType !=
+                                  "application/vnd.google-apps.folder"
+                              ? IconButton(
+                                  onPressed: () async {
+                                    String fileType = '';
+                                    print(
+                                      widget.fileList[index].id.toString(),
+                                    );
+                                    File? newFile =
+                                        await authService.downloadFile(
+                                      widget.fileList[index].id.toString(),
+                                      context,
+                                      widget.fileList[index].name.toString(),
+                                    );
+                                    fileType = widget.fileList[index].name
+                                        .toString()
+                                        .substring(widget.fileList[index].name
+                                                .toString()
+                                                .length -
+                                            3);
+                                    print("Extension: " + fileType);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+
+                                    // TODO: This work, but you need to update the UI.
+                                    // OpenFile.open(newFile!.path);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: ((context) => OpenFileScreen(
+                                              imageFile: newFile!,
+                                              fileType: fileType,
+                                            )),
+                                      ),
+                                    );
+
+                                    // // TODO: This doesn't work
+                                    // File pdfFile = File(newFile!.path);
+                                    // final pdfDocument =
+                                    //     await PDFDocument.fromFile(pdfFile);
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: ((context) => PdfViewScreen(
+                                    //           pdfFile: newFile!,
+                                    //         )),
+                                    //   ),
+                                    // );
+                                    // print(newFile?.path);
+                                  },
+                                  icon:
+                                      const Icon(CupertinoIcons.cloud_download),
+                                )
+                              : IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(CupertinoIcons.folder)),
                           subtitle: Text(getFormattedDate(
                               widget.fileList[index].modifiedTime.toString())),
-                          trailing: Text(
-                            formatBytes(
-                                widget.fileList[index].size ?? 0 as int, 2),
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          title: Text(
-                            widget.fileList[index].name.toString(),
+                          trailing: widget.fileList[index].mimeType !=
+                                  "application/vnd.google-apps.folder"
+                              ? Text(
+                                  formatBytes(
+                                      widget.fileList[index].size ?? 0 as int,
+                                      2),
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : const Text(''),
+                          title: GestureDetector(
+                            onTap: () async {
+                              if (widget.fileList[index].mimeType ==
+                                  "application/vnd.google-apps.folder") {
+                                final files_list = await authService
+                                    .getAllFileFromGoogleDriveFromSpaceId(
+                                        widget.fileList[index].id as String);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: ((context) => FilesListScreen(
+                                          fileList: files_list,
+                                          currentId: widget.fileList[index].id
+                                              as String,
+                                        )),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text(
+                              widget.fileList[index].name.toString(),
+                            ),
                           ),
                         ),
                       ),

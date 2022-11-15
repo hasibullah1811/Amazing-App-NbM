@@ -27,3 +27,7 @@ String getFormattedDate(String date) {
 
   return outputDate.toString();
 }
+
+extension E on String {
+  String lastChars(int n) => substring(length - n);
+}
