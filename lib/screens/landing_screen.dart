@@ -32,21 +32,7 @@ class _LandingScreenState extends State<LandingScreen> {
     authService = Provider.of<AuthService>(context);
   }
 
-  void _pickFile() async {
-    //With parameters:
-    FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
-      allowedFileExtensions: ['jpg', 'pdf', 'doc'],
-      allowedMimeTypes: ['application/*'],
-      invalidFileNameSymbols: ['/'],
-    );
-    // opens storage to pick files and the picked file or files
-    // are assigned into result and if no file is chosen result is null.
-    final path = await FlutterDocumentPicker.openDocument();
-    File newFile = File(path as String);
-    final dataBytes = await newFile.readAsBytes();
-    final bytesBase = base64Encode(dataBytes);
-    print(newFile.path);
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,45 +106,14 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                     ),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.only(
-                  //       left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
-                  //   child: InkWell(
-                  //     onTap: () async {
-                  //       // await authService.googleSignInNew();
-                  //       final path = await FlutterDocumentPicker.openDocument();
-                  //       File newFile = File(path as String);
-                  //       final dataBytes = await newFile.readAsBytes();
-                  //       final bytesBase = base64Encode(dataBytes);
-                  //       print(bytesBase);
-                  //       // print(path);
-                  //       // var googleDrive = GoogleDrive();
-                  //       // googleDrive.upload(File(path as String));
-                  //       try {
-                  //         var id = await authService
-                  //             .uploadFilesToGoogleDrive(newFile, "root");
-                  //         print('id : $id');
 
-                  //         // var all_files = await authService.
-                  //       } catch (error) {
-                  //         print('error occured');
-                  //       } finally {
-                  //         print('uploaded');
-                  //       }
-                  //     },
-                  //     child: CustomButtonLarge(
-                  //       title: "Upload Files to your google drive",
-                  //       color: Colors.green.withOpacity(0.8),
-                  //     ),
-                  //   ),
-                  // ),
                   Padding(
                     padding: const EdgeInsets.only(
                         left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
                     child: InkWell(
                       onTap: () async {
                         // We will show the downloaded file here for encryption and decryption
-                        _pickFile();
+                        // _pickFile();
                       },
                       child: CustomButtonLarge(
                         title: "Downloaded Files",

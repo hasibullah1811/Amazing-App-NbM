@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
@@ -9,6 +10,8 @@ import '../con/constant_functions.dart';
 import '../services/auth_service.dart';
 import '../services/file.dart';
 import 'open_file_screen.dart';
+
+import 'package:mime_type/mime_type.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -28,6 +31,7 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+
   static const snackBar = SnackBar(
     content: Text('File downloaded successfully!'),
   );
@@ -45,6 +49,18 @@ class _FilesListScreenState extends State<FilesListScreen> {
     authService = Provider.of<AuthService>(context);
   }
 
+  Future<File> _pickFile() async {
+    //With parameters:
+    FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
+      allowedFileExtensions: ['jpg', 'pdf', 'doc'],
+      allowedMimeTypes: ['application/*'],
+      invalidFileNameSymbols: ['/'],
+    );
+    final path = await FlutterDocumentPicker.openDocument();
+    File newFile = File(path as String);
+    return newFile;
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -53,10 +69,33 @@ class _FilesListScreenState extends State<FilesListScreen> {
         onPressed: () async {
           try {
             print(widget.currentId);
-            final path = await FlutterDocumentPicker.openDocument();
-            File newFile = File(path as String);
+            // final path = await FlutterDocumentPicker.openDocument();
+            // File newFile = File(path as String);
+            File newFile = await _pickFile();
+
+            // Do the encryption here
+            // AesCrypt crypt = AesCrypt();
+            // crypt.aesSetMode(AesMode.cbc);
+            // crypt.setPassword("sifat12345");
+
+            // crypt.setOverwriteMode(AesCryptOwMode.rename);
+            // String? encryptedFilePath;
+            // File? encryptedFile;
+
+            // try {
+            //   print('encrypting...');
+            //   encryptedFilePath = crypt.encryptFileSync(newFile.path);
+            //   encryptedFile = File(encryptedFilePath);
+            //   print('encrypted file path: $encryptedFilePath');
+            // } catch (e) {
+            //   print('encryption error');
+            // }
+            File encryptedFile = await authService.encryptFile(newFile);
+
+            // var id = await authService.uploadFilesToGoogleDrive(
+            // newFile, widget.currentId);
             var id = await authService.uploadFilesToGoogleDrive(
-                newFile, widget.currentId);
+                encryptedFile!, widget.currentId);
 
             print('uploaded');
             ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
@@ -151,14 +190,21 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                       context,
                                       widget.fileList[index].name.toString(),
                                     );
-                                    // fileType = widget.fileList[index].name
-                                    //     .toString()
-                                    //     .substring(widget.fileList[index].name
-                                    //             .toString()
-                                    //             .length -
-                                    //         3);
-                                    print("Extension: " +
-                                        widget.fileList[index].mimeType!);
+
+                                    var fileType = widget.fileList[index].name
+                                        .toString()
+                                        .substring(widget.fileList[index].name
+                                                .toString()
+                                                .length -
+                                            3);
+
+                                    File? decryptedFile;
+                                    if (fileType == 'aes') {
+                                      decryptedFile =
+                                          await authService.decryptFile(
+                                        newFile!,
+                                      );
+                                    }
 
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
@@ -167,9 +213,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: ((context) => OpenFileScreen(
-                                              imageFile: newFile!,
-                                              mimeType: widget
-                                                  .fileList[index].mimeType!,
+                                              imageFile: decryptedFile!,
+                                              mimeType: mime(decryptedFile.path)
+                                                  as String,
                                             )),
                                       ),
                                     );
