@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:amazing_app/screens/drive_upload_screen.dart';
 import 'package:amazing_app/screens/files_list_screen.dart';
 import 'package:amazing_app/screens/open_file_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
@@ -61,7 +60,6 @@ class MyApp extends StatelessWidget {
           CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
           LandingScreen.routeName: (context) => const LandingScreen(),
-          DriveUploadScreen.routeName: (context) => const DriveUploadScreen(),
         },
       ),
     );

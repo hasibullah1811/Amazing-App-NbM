@@ -35,13 +35,7 @@ dependencies:
   flutter_downloader: ^1.9.1
   open_file: ^3.2.1
   permission_handler: ^10.2.0
-  # storage_controller: ^2.0.0
-  # hive: ^2.2.3
   permission_handler_android: ^10.2.0
-  advance_pdf_viewer: ^2.0.1
-  flutter_cache_manager: ^3.3.0
-  numberpicker: ^2.1.1
-  flutter_advanced_networkimage_2: ^2.0.1
   # open_document: ^1.0.4
   # path_provider: ^2.0.11
   # flutter_face_api_beta: ^0.0.71

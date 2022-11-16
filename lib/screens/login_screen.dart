@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
-import 'package:amazing_app/screens/drive_upload_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/services/auth_service.dart';
 import 'package:flutter/foundation.dart';

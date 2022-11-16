@@ -1,14 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
-import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
-import 'package:amazing_app/screens/pdf_view_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
-import 'package:googleapis/games/v1.dart';
-import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 import '../con/constant_functions.dart';
 import '../services/auth_service.dart';
@@ -39,13 +34,14 @@ class _FilesListScreenState extends State<FilesListScreen> {
   static const uploadSnackBar = SnackBar(
     content: Text('File Uploaded successfully!'),
   );
+  static const errorSnackBar = SnackBar(
+    content: Text('Error Occured!'),
+  );
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    // if (Platform.isAndroid) PathProviderAndroid.registerWith();
-    // if (Platform.isIOS) PathProviderIOS.registerWith();
     authService = Provider.of<AuthService>(context);
   }
 
@@ -55,27 +51,20 @@ class _FilesListScreenState extends State<FilesListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          print(widget.currentId);
-          final path = await FlutterDocumentPicker.openDocument();
-          File newFile = File(path as String);
-          final dataBytes = await newFile.readAsBytes();
-          final bytesBase = base64Encode(dataBytes);
-          print(bytesBase);
-          // print(path);
-          // var googleDrive = GoogleDrive();
-          // googleDrive.upload(File(path as String));
           try {
+            print(widget.currentId);
+            final path = await FlutterDocumentPicker.openDocument();
+            File newFile = File(path as String);
             var id = await authService.uploadFilesToGoogleDrive(
                 newFile, widget.currentId);
-            print('id : $id');
 
-            // var all_files = await authService.
-          } catch (error) {
-            print('error occured');
-          } finally {
             print('uploaded');
             ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
             authService.progressPercentage = 0;
+            print('id : $id');
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+            print('upload Error');
           }
         },
         child: const Icon(Icons.add),
