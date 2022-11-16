@@ -1,6 +1,8 @@
+import 'dart:ui';
+
 import 'package:amazing_app/screens/drive_upload_screen.dart';
 import 'package:amazing_app/screens/files_list_screen.dart';
-import 'package:amazing_app/screens/image_viewing_screen.dart';
+import 'package:amazing_app/screens/open_file_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
@@ -20,6 +22,7 @@ Future<void> main() async {
   // Ensure that plugin services are initialized so that `availableCameras()`
   // can be called before `runApp()`
   WidgetsFlutterBinding.ensureInitialized();
+  DartPluginRegistrant.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   isViewed = prefs.getBool('viewed_onboard');
   final cameras = await availableCameras();

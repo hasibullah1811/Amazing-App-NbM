@@ -8,9 +8,9 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 class OpenFileScreen extends StatefulWidget {
   static const String routeName = "ImageScreen";
   final File imageFile;
-  final String fileType;
+  final String mimeType;
   const OpenFileScreen(
-      {super.key, required this.imageFile, required this.fileType});
+      {super.key, required this.imageFile, required this.mimeType});
 
   @override
   State<OpenFileScreen> createState() => _OpenFileScreenState();
@@ -31,11 +31,14 @@ class _OpenFileScreenState extends State<OpenFileScreen> {
         title: Text('Amazing App PDF Viewer'),
       ),
       body: SafeArea(
-        child: (widget.fileType == 'jpg' || widget.fileType == 'png')
-            ? Image.file(widget.imageFile)
-            : SfPdfViewer.file(File(
-                widget.imageFile.path,
-              )),
+        child: (widget.mimeType == 'image/jpeg')
+            ? Center(child: Image.file(widget.imageFile))
+            : (widget.mimeType == 'application/pdf')
+                ? SfPdfViewer.file(File(
+                    widget.imageFile.path,
+                  ))
+                : const Center(
+                    child: Text('Following filetype is not supported yes')),
       ),
     );
   }

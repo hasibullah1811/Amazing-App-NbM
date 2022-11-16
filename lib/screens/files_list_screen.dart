@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import '../con/constant_functions.dart';
 import '../services/auth_service.dart';
 import '../services/file.dart';
-import 'image_viewing_screen.dart';
+import 'open_file_screen.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -146,7 +146,13 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                   "application/vnd.google-apps.folder"
                               ? IconButton(
                                   onPressed: () async {
-                                    String fileType = '';
+                                    // print(widget.fileList[index].mimeType);
+                                    /*
+                                    application/pdf
+                                    image/jpeg
+                                    application/vnd.openxmlformats-officedocument.wordprocessingml.document - docx
+                                    application/vnd.google-apps.document - google doc
+                                    */
                                     print(
                                       widget.fileList[index].id.toString(),
                                     );
@@ -156,41 +162,28 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                       context,
                                       widget.fileList[index].name.toString(),
                                     );
-                                    fileType = widget.fileList[index].name
-                                        .toString()
-                                        .substring(widget.fileList[index].name
-                                                .toString()
-                                                .length -
-                                            3);
-                                    print("Extension: " + fileType);
+                                    // fileType = widget.fileList[index].name
+                                    //     .toString()
+                                    //     .substring(widget.fileList[index].name
+                                    //             .toString()
+                                    //             .length -
+                                    //         3);
+                                    print("Extension: " +
+                                        widget.fileList[index].mimeType!);
+
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
 
-                                    // TODO: This work, but you need to update the UI.
-                                    // OpenFile.open(newFile!.path);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: ((context) => OpenFileScreen(
                                               imageFile: newFile!,
-                                              fileType: fileType,
+                                              mimeType: widget
+                                                  .fileList[index].mimeType!,
                                             )),
                                       ),
                                     );
-
-                                    // // TODO: This doesn't work
-                                    // File pdfFile = File(newFile!.path);
-                                    // final pdfDocument =
-                                    //     await PDFDocument.fromFile(pdfFile);
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: ((context) => PdfViewScreen(
-                                    //           pdfFile: newFile!,
-                                    //         )),
-                                    //   ),
-                                    // );
-                                    // print(newFile?.path);
                                   },
                                   icon:
                                       const Icon(CupertinoIcons.cloud_download),

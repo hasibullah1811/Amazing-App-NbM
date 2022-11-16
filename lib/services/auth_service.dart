@@ -235,6 +235,7 @@ class AuthService with ChangeNotifier {
     // print(storage);
 
     if (await Permission.storage.request().isGranted) {
+      // if (Platform.isAndroid) PathProviderAndroid.registerWith();
       // Either the permission was already granted before or the user just granted it.
       loading = true;
       progressPercentage = 0;
