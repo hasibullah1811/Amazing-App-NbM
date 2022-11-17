@@ -14,7 +14,6 @@ import '../models/user.dart';
 import '../services/google_signin.dart';
 import 'capture_face_live.dart';
 import 'capture_face_screen.dart';
-import 'loggedin_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = "LoginScreen";
@@ -49,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
           print(currentUser!.email.toString());
           authService.currentUser = currentUser;
           Navigator.pushNamed(context, LandingScreen.routeName);
+          // Navigator.pushNamed(context, DriveUploadScreen.routeName);
         }
       });
       authService.googleSignIn.signInSilently();
@@ -100,6 +100,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: InkWell(
                       onTap: () async {
                         await authService.googleSignInNew();
+                        // Navigator.pushNamed(
+                        // context, DriveUploadScreen.routeName);
                         if (authService.pictureUploaded) {
                           Navigator.pushNamed(
                             context,
@@ -166,18 +168,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  // Future _signIn() async {
-  //   final u = await GoogleSignInApi.login();
-  //   User user = User(user: u!.displayName as String, email: u.email);
-
-  //   if (u == null) {
-  //     print('failed');
-  //   } else {
-  //     Navigator.of(context).pushReplacement(MaterialPageRoute(
-  //       builder: (context) => LoggedInPage(user: user),
-  //     ));
-  //   }
-  // print(user.toString());
-  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> LoggedInPage(user: user)))
 }

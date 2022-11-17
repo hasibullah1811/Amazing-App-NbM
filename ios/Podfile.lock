@@ -10,8 +10,12 @@ PODS:
   - FaceSDK (4.1.1153):
     - RegulaCommon (= 6.5.166)
   - Flutter (1.0.0)
+  - flutter_document_picker (0.0.1):
+    - Flutter
   - flutter_face_api (4.1.0):
     - FaceSDK (= 4.1.1153)
+    - Flutter
+  - flutter_secure_storage (3.3.1):
     - Flutter
   - google_sign_in_ios (0.0.1):
     - Flutter
@@ -26,17 +30,25 @@ PODS:
   - GTMSessionFetcher/Core (2.1.0)
   - image_picker_ios (0.0.1):
     - Flutter
+  - path_provider_ios (0.0.1):
+    - Flutter
   - RegulaCommon (6.5.166)
   - shared_preferences_ios (0.0.1):
+    - Flutter
+  - url_launcher_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
+  - flutter_document_picker (from `.symlinks/plugins/flutter_document_picker/ios`)
   - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -52,28 +64,40 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
+  flutter_document_picker:
+    :path: ".symlinks/plugins/flutter_document_picker/ios"
   flutter_face_api:
     :path: ".symlinks/plugins/flutter_face_api/ios"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  path_provider_ios:
+    :path: ".symlinks/plugins/path_provider_ios/ios"
   shared_preferences_ios:
     :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   AppAuth: 8fca6b5563a5baef2c04bee27538025e4ceb2add
   camera_avfoundation: 07c77549ea54ad95d8581be86617c094a46280d9
   FaceSDK: fafdffe8eeae71acb820c286538152cb3080dea6
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  flutter_document_picker: 109ba1c4622e6e62bfced17c22ff544a9a3541f4
   flutter_face_api: 93513564940ad56ebcf190ff1e2b25bc9cb2940f
+  flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   google_sign_in_ios: 4f85eb9f937450765c8573bb85fd8cd6a5af675c
   GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
   GTMSessionFetcher: ffbb25ec00ebcb5201adab0a56d808f6f1902d9f
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   RegulaCommon: 149b3792b364d5e8fd3b8cc1dfe3d232a495e3cd
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
 PODFILE CHECKSUM: 7c54516ca8e3a817028f2bc66337f176f408dca3
 

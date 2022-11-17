@@ -1,12 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/utils/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import 'files_list_screen.dart';
 
 class LandingScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -26,6 +31,8 @@ class _LandingScreenState extends State<LandingScreen> {
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +84,59 @@ class _LandingScreenState extends State<LandingScreen> {
               Column(
                 children: [
                   Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                        final files_list = await authService
+                            .getAllFileFromGoogleDriveFromSpaceId("root");
+                        print(files_list);
+                        authService.progressPercentage = 0;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: ((context) =>
+                                FilesListScreen(fileList: files_list)),
+                          ),
+                        );
+                      },
+                      child: CustomButtonLarge(
+                        title: "Browse Files on your google drive",
+                        color: Colors.blue.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 64.0, right: 64.0, top: 16.0, bottom: 16.0),
+                    child: InkWell(
+                      onTap: () async {
+                        // We will show the downloaded file here for encryption and decryption
+                        // _pickFile();
+                      },
+                      child: CustomButtonLarge(
+                        title: "Downloaded Files",
+                        color: Colors.green.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       'Welcome to your account, Exciting features coming soon',
                       textAlign: TextAlign.center,
                     ),
                   ),
+                  authService.progressPercentage != 0
+                      ? Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'Progress: ${authService.progressPercentage} %',
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Container(),
                   authService.loading
                       ? CircularProgressIndicator()
                       : Container(),
