@@ -1,20 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
-import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
-import 'package:amazing_app/screens/pdf_view_screen.dart';
+import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
-import 'package:googleapis/games/v1.dart';
-import 'package:open_file/open_file.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
 import '../services/file.dart';
-import '../utils/constant_functions.dart';
-import 'image_viewing_screen.dart';
+import 'open_file_screen.dart';
+
+import 'package:mime_type/mime_type.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
@@ -34,20 +31,34 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+
   static const snackBar = SnackBar(
     content: Text('File downloaded successfully!'),
   );
   static const uploadSnackBar = SnackBar(
     content: Text('File Uploaded successfully!'),
   );
+  static const errorSnackBar = SnackBar(
+    content: Text('Error Occured!'),
+  );
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-    // if (Platform.isAndroid) PathProviderAndroid.registerWith();
-    // if (Platform.isIOS) PathProviderIOS.registerWith();
     authService = Provider.of<AuthService>(context);
+  }
+
+  Future<File> _pickFile() async {
+    //With parameters:
+    FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
+      allowedFileExtensions: ['jpg', 'pdf', 'doc'],
+      allowedMimeTypes: ['application/*'],
+      invalidFileNameSymbols: ['/'],
+    );
+    final path = await FlutterDocumentPicker.openDocument();
+    File newFile = File(path as String);
+    return newFile;
   }
 
   @override
@@ -56,27 +67,43 @@ class _FilesListScreenState extends State<FilesListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          print(widget.currentId);
-          final path = await FlutterDocumentPicker.openDocument();
-          File newFile = File(path as String);
-          final dataBytes = await newFile.readAsBytes();
-          final bytesBase = base64Encode(dataBytes);
-          print(bytesBase);
-          // print(path);
-          // var googleDrive = GoogleDrive();
-          // googleDrive.upload(File(path as String));
           try {
-            var id = await authService.uploadFilesToGoogleDrive(
-                newFile, widget.currentId);
-            print('id : $id');
+            print(widget.currentId);
+            // final path = await FlutterDocumentPicker.openDocument();
+            // File newFile = File(path as String);
+            File newFile = await _pickFile();
 
-            // var all_files = await authService.
-          } catch (error) {
-            print('error occured');
-          } finally {
+            // Do the encryption here
+            // AesCrypt crypt = AesCrypt();
+            // crypt.aesSetMode(AesMode.cbc);
+            // crypt.setPassword("sifat12345");
+
+            // crypt.setOverwriteMode(AesCryptOwMode.rename);
+            // String? encryptedFilePath;
+            // File? encryptedFile;
+
+            // try {
+            //   print('encrypting...');
+            //   encryptedFilePath = crypt.encryptFileSync(newFile.path);
+            //   encryptedFile = File(encryptedFilePath);
+            //   print('encrypted file path: $encryptedFilePath');
+            // } catch (e) {
+            //   print('encryption error');
+            // }
+            File encryptedFile = await authService.encryptFile(newFile);
+
+            // var id = await authService.uploadFilesToGoogleDrive(
+            // newFile, widget.currentId);
+            var id = await authService.uploadFilesToGoogleDrive(
+                encryptedFile!, widget.currentId);
+
             print('uploaded');
             ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
             authService.progressPercentage = 0;
+            print('id : $id');
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+            print('upload Error');
           }
         },
         child: const Icon(Icons.add),
@@ -147,7 +174,13 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                   "application/vnd.google-apps.folder"
                               ? IconButton(
                                   onPressed: () async {
-                                    String fileType = '';
+                                    // print(widget.fileList[index].mimeType);
+                                    /*
+                                    application/pdf
+                                    image/jpeg
+                                    application/vnd.openxmlformats-officedocument.wordprocessingml.document - docx
+                                    application/vnd.google-apps.document - google doc
+                                    */
                                     print(
                                       widget.fileList[index].id.toString(),
                                     );
@@ -157,41 +190,35 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                       context,
                                       widget.fileList[index].name.toString(),
                                     );
-                                    fileType = widget.fileList[index].name
+
+                                    var fileType = widget.fileList[index].name
                                         .toString()
                                         .substring(widget.fileList[index].name
                                                 .toString()
                                                 .length -
                                             3);
-                                    print("Extension: " + fileType);
+
+                                    File? decryptedFile;
+                                    if (fileType == 'aes') {
+                                      decryptedFile =
+                                          await authService.decryptFile(
+                                        newFile!,
+                                      );
+                                    }
+
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
 
-                                    // TODO: This work, but you need to update the UI.
-                                    // OpenFile.open(newFile!.path);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: ((context) => OpenFileScreen(
-                                              imageFile: newFile!,
-                                              fileType: fileType,
+                                              imageFile: decryptedFile!,
+                                              mimeType: mime(decryptedFile.path)
+                                                  as String,
                                             )),
                                       ),
                                     );
-
-                                    // // TODO: This doesn't work
-                                    // File pdfFile = File(newFile!.path);
-                                    // final pdfDocument =
-                                    //     await PDFDocument.fromFile(pdfFile);
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: ((context) => PdfViewScreen(
-                                    //           pdfFile: newFile!,
-                                    //         )),
-                                    //   ),
-                                    // );
-                                    // print(newFile?.path);
                                   },
                                   icon:
                                       const Icon(CupertinoIcons.cloud_download),
