@@ -28,7 +28,7 @@ class _OpenFileScreenState extends State<OpenFileScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        title: Text('Amazing App PDF Viewer'),
+        title: Text('Amazing App File Viewer'),
       ),
       body: SafeArea(
         child: (widget.mimeType == 'image/jpeg')

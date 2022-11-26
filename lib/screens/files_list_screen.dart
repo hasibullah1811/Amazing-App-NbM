@@ -177,56 +177,61 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                       "application/vnd.google-apps.folder"
                                   ? IconButton(
                                       onPressed: () async {
-                                        // print(widget.fileList[index].mimeType);
-                                        /*
-                                        application/pdf
-                                        image/jpeg
-                                        application/vnd.openxmlformats-officedocument.wordprocessingml.document - docx
-                                        application/vnd.google-apps.document - google doc
-                                        */
                                         print(
                                           widget.fileList[index].id.toString(),
                                         );
-                                        File? newFile =
-                                            await authService.downloadFile(
-                                          widget.fileList[index].id.toString(),
-                                          context,
-                                          widget.fileList[index].name
-                                              .toString(),
-                                        );
+                                        //Checks if the face is matched
+                                        final fatchMatched =
+                                            await Navigator.pushNamed(context,
+                                                FaceApiScreen.routeName);
 
-                                        var fileType = widget
-                                            .fileList[index].name
-                                            .toString()
-                                            .substring(widget
-                                                    .fileList[index].name
-                                                    .toString()
-                                                    .length -
-                                                3);
+                                        if (fatchMatched == true) {
+                                          File? newFile =
+                                              await authService.downloadFile(
+                                            widget.fileList[index].id
+                                                .toString(),
+                                            context,
+                                            widget.fileList[index].name
+                                                .toString(),
+                                          );
 
-                                        File? decryptedFile;
-                                        if (fileType == 'aes') {
-                                          decryptedFile =
-                                              await authService.decryptFile(
-                                            newFile!,
+                                          var fileType = widget
+                                              .fileList[index].name
+                                              .toString()
+                                              .substring(widget
+                                                      .fileList[index].name
+                                                      .toString()
+                                                      .length -
+                                                  3);
+
+                                          File? decryptedFile;
+                                          if (fileType == 'aes') {
+                                            decryptedFile =
+                                                await authService.decryptFile(
+                                              newFile!,
+                                            );
+                                          } else {
+                                            decryptedFile = newFile!;
+                                          }
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: ((context) =>
+                                                  OpenFileScreen(
+                                                    imageFile: decryptedFile!,
+                                                    mimeType:
+                                                        mime(decryptedFile.path)
+                                                            as String,
+                                                  )),
+                                            ),
                                           );
                                         } else {
-                                          decryptedFile = newFile!;
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                                  faceNotMatchedSnackBar);
                                         }
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(snackBar);
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: ((context) =>
-                                                OpenFileScreen(
-                                                  imageFile: decryptedFile!,
-                                                  mimeType:
-                                                      mime(decryptedFile.path)
-                                                          as String,
-                                                )),
-                                          ),
-                                        );
                                       },
                                       icon: const Icon(
                                           CupertinoIcons.cloud_download),
