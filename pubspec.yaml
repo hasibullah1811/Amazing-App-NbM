@@ -41,6 +41,8 @@ dependencies:
   # flutter_face_api_beta: ^0.0.71
   syncfusion_flutter_pdfviewer: ^20.3.57
   aes_crypt_null_safe: ^2.0.2
+  flutter_spinkit: ^5.1.0
+  cached_network_image: ^3.2.2
 
 dev_dependencies:
   flutter_test:

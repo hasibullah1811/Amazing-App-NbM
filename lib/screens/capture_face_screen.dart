@@ -111,15 +111,15 @@ class _CaptureFaceScreenState extends State<CaptureFaceScreen> {
       print(image.path);
       if (!mounted) return;
       // If the picture was taken, display it on a new screen.
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DisplayPictureScreen(
-            // Pass the automatically generated path to
-            // the DisplayPictureScreen widget.
-            imagePath: image.path,
-          ),
-        ),
-      );
+      // await Navigator.of(context).push(
+      //   MaterialPageRoute(
+      //     builder: (context) => DisplayPictureScreen(
+      //       // Pass the automatically generated path to
+      //       // the DisplayPictureScreen widget.
+      //       imagePath: image.path,
+      //     ),
+      //   ),
+      // );
     } catch (e) {
       // If an error occurs, log the error to the console.
       print(e);

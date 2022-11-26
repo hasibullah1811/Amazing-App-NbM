@@ -19,6 +19,7 @@ import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
@@ -28,8 +29,11 @@ class AuthService with ChangeNotifier {
   late BuildContext navigationContext;
   int progressPercentage = 0;
   String fileSavedLocation = '';
+  late Map<String, dynamic> fileMap = {};
   bool loading = false;
   bool signedIn = false;
+  bool isEncrypting = false;
+  bool isDecrypting = false;
   late client.Dio dio;
   late GoogleSignIn googleSignIn;
   late GoogleSignInAccount? currentUser;
@@ -76,6 +80,51 @@ class AuthService with ChangeNotifier {
   }
 
   // Future<bool> googleSignIn() {}
+
+  saveDownloadedFileLocal(String fileName, String filePath) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> downloadedFile = {
+      fileName: filePath,
+    };
+
+    bool result =
+        await prefs.setString('downloadedFile', jsonEncode(downloadedFile));
+    if (result) {
+      print('*********File Downloaded Saved Local Storage*********');
+    }
+    // if (result) {
+    //   return downloadedFile;
+    // }
+  }
+
+  saveImageAddressLocal(String fileName, String filePath) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> profilePicAddress = {
+      fileName: filePath,
+    };
+
+    bool result =
+        await prefs.setString('profilePic', jsonEncode(profilePicAddress));
+    if (result) {
+      print('*********File Address Saved Local Storage*********');
+    }
+    // if (result) {
+    //   return downloadedFile;
+    // }
+  }
+
+  retrieveDownloadedFileLocal() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // String? filePref = prefs.getString('downloadedFile');
+    // fileMap = jsonDecode(filePref!) as Map<String, dynamic>;
+    // notifyListeners();
+    // return fileMap;
+    // List<File> files_list =
+    Directory? newPath = await getExternalStorageDirectory();
+    final dir = Directory(newPath?.path as String);
+    final List<FileSystemEntity> entities = await dir.list().toList();
+    return entities;
+  }
 
   googleSignInNew() async {
     loading = true;
@@ -213,12 +262,14 @@ class AuthService with ChangeNotifier {
   }
 
   Future<File> decryptFile(File file) async {
+    isDecrypting = true;
+    notifyListeners();
     final directories = await getExternalCacheDirectories();
     final baseName = path.basename(file.path);
     final nameWithoutAes = baseName.substring(0, baseName.length - 4);
     print(nameWithoutAes);
 
-    final filePathFull = "${directories?.elementAt(1).path}/$nameWithoutAes";
+    final filePathFull = "${directories?.first.path}/$nameWithoutAes";
     final fileExist = await File(filePathFull).exists();
     String? decryptedFilePath;
     if (!fileExist) {
@@ -234,12 +285,18 @@ class AuthService with ChangeNotifier {
       }
     } else {
       decryptedFilePath = filePathFull;
+      saveDownloadedFileLocal(nameWithoutAes, decryptedFilePath);
     }
+
+    isDecrypting = false;
+    notifyListeners();
 
     return File(decryptedFilePath!);
   }
 
   Future<File> encryptFile(File file) async {
+    isEncrypting = true;
+    notifyListeners();
     AesCrypt crypt = AesCrypt();
     crypt.aesSetMode(AesMode.cbc);
     crypt.setPassword(currentUser!.id);
@@ -250,9 +307,13 @@ class AuthService with ChangeNotifier {
       print('encrypting...');
       encryptedFilePath = crypt.encryptFileSync(file.path);
       print('encrypted file path: $encryptedFilePath');
+      isEncrypting = false;
     } catch (e) {
       print('encryption error');
+      isEncrypting = false;
     }
+    isEncrypting = false;
+    notifyListeners();
     return File(encryptedFilePath as String);
   }
 
@@ -326,6 +387,7 @@ class AuthService with ChangeNotifier {
 
       if (res.statusCode == 200) {
         log('Upload Successful');
+        saveImageAddressLocal(uid, filePath);
       }
     } catch (e) {
       if (e is client.DioError) print(e.response.toString());
