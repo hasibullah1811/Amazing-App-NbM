@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/file.dart';
 import '../utils/constant_functions.dart';
+import 'Face Live/face_api_screen.dart';
 import 'open_file_screen.dart';
 
 import 'package:mime_type/mime_type.dart';
@@ -52,6 +54,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
   static const errorSnackBar = SnackBar(
     content: Text('Error Occured!'),
   );
+  static const faceNotMatchedSnackBar = SnackBar(
+    content: Text('Oops! Your face is not matched. Are you trying to steal?'),
+  );
 
   @override
   void didChangeDependencies() {
@@ -79,39 +84,24 @@ class _FilesListScreenState extends State<FilesListScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           try {
-            print(widget.currentId);
-            // final path = await FlutterDocumentPicker.openDocument();
-            // File newFile = File(path as String);
-            File newFile = await _pickFile();
+            //Checks if the face is matched
+            final fatchMatched =
+                await Navigator.pushNamed(context, FaceApiScreen.routeName);
 
-            // Do the encryption here
-            // AesCrypt crypt = AesCrypt();
-            // crypt.aesSetMode(AesMode.cbc);
-            // crypt.setPassword("sifat12345");
-
-            // crypt.setOverwriteMode(AesCryptOwMode.rename);
-            // String? encryptedFilePath;
-            // File? encryptedFile;
-
-            // try {
-            //   print('encrypting...');
-            //   encryptedFilePath = crypt.encryptFileSync(newFile.path);
-            //   encryptedFile = File(encryptedFilePath);
-            //   print('encrypted file path: $encryptedFilePath');
-            // } catch (e) {
-            //   print('encryption error');
-            // }
-            File encryptedFile = await authService.encryptFile(newFile);
-
-            // var id = await authService.uploadFilesToGoogleDrive(
-            // newFile, widget.currentId);
-            var id = await authService.uploadFilesToGoogleDrive(
-                encryptedFile!, widget.currentId);
-
-            print('uploaded');
-            ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-            authService.progressPercentage = 0;
-            print('id : $id');
+            if (fatchMatched == true) {
+              log('FatchMatched');
+              File newFile = await _pickFile();
+              File encryptedFile = await authService.encryptFile(newFile);
+              var id = await authService.uploadFilesToGoogleDrive(
+                  encryptedFile!, widget.currentId);
+              print('uploaded');
+              ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+              authService.progressPercentage = 0;
+              print('id : $id');
+            } else {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(faceNotMatchedSnackBar);
+            }
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
             print('upload Error');
