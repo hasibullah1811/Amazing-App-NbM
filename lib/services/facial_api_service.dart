@@ -35,13 +35,15 @@ class FaceApiServices with ChangeNotifier {
   }
 
   clearResults() {
-    img1 = Image.asset('assets/images/portrait.png');
-    img2 = Image.asset('assets/images/portrait.png');
+    // img1 = Image.asset('assets/images/portrait.png');
+    // img2 = Image.asset('assets/images/portrait.png');
     similarity = "nil";
     islive = "nil";
+    matchingInProgress = false;
+    faceMatched = false;
     notifyListeners();
-    image1 = new Regula.MatchFacesImage();
-    image2 = new Regula.MatchFacesImage();
+    // image1 = new Regula.MatchFacesImage();
+    // image2 = new Regula.MatchFacesImage();
   }
 
   matchFaces(BuildContext context) {
@@ -51,6 +53,7 @@ class FaceApiServices with ChangeNotifier {
         image2.bitmap == "") return;
     similarity = "Processing...";
     matchingInProgress = true;
+    // faceMatched = false;
     notifyListeners();
 
     var request = new Regula.MatchFacesRequest();
@@ -75,7 +78,8 @@ class FaceApiServices with ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           matchingInProgress = false;
           notifyListeners();
-          Navigator.pop(context, faceMatched);
+          clearResults();
+          Navigator.pop(context, false);
         } else {
           faceMatched = true;
           matchingInProgress = false;
@@ -84,7 +88,8 @@ class FaceApiServices with ChangeNotifier {
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           notifyListeners();
-          Navigator.pop(context, faceMatched);
+          clearResults();
+          Navigator.pop(context, true);
         }
         notifyListeners();
       });

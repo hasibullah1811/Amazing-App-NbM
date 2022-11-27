@@ -209,76 +209,65 @@ class _FaceApiScreenState extends State<FaceApiScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: faceApiServices!.matchingInProgress
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Lottie.asset(
-                      'assets/animations/face_scan_animation.json',
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.fill,
-                      // controller: _controller,
-                      // onLoaded: (composition) {
-                      //   // Configure the AnimationController with the duration of the
-                      //   // Lottie file and start the animation.
-                      //   _controller
-                      //     ..duration = composition.duration
-                      //     ..forward();
-                      // },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: Text('Matching Faces.... Please wait'),
-                    ),
-                  ),
-                ],
-              )
-            : Center(
-                child: Text('Process Complete'),
+          body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: Lottie.asset(
+              'assets/animations/face_scan_animation.json',
+              width: 150,
+              height: 150,
+              fit: BoxFit.fill,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
               ),
-        // : Container(
-        //     margin: EdgeInsets.fromLTRB(0, 0, 0, 100),
-        //     width: double.infinity,
-        //     child: Column(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: <Widget>[
-        //         createImage(faceApiServices!.img1.image,
-        //             () => showAlertDialog(context, true)),
-        //         createImage(faceApiServices!.img2.image,
-        //             () => showAlertDialog(context, false)),
-        //         Container(margin: EdgeInsets.fromLTRB(0, 0, 0, 15)),
-        //         createButton(
-        //             "Match", () => faceApiServices?.matchFaces(context)),
-        //         createButton("Liveness", () => faceApiServices?.liveness()),
-        //         createButton(
-        //             "Clear", () => faceApiServices?.clearResults()),
-        //         Container(
-        //           margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.center,
-        //             children: [
-        //               Text("Similarity: " + faceApiServices!.similarity,
-        //                   style: TextStyle(fontSize: 18)),
-        //               Container(margin: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-        //               Text("Liveness: " + faceApiServices!.islive,
-        //                   style: TextStyle(fontSize: 18))
-        //             ],
-        //           ),
-        //         )
-        //       ],
-        //     ),
-        //   ),
-      );
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Text('Matching Faces.... Please wait'),
+            ),
+          ),
+        ],
+      )
+
+          // : Container(
+          //     margin: EdgeInsets.fromLTRB(0, 0, 0, 100),
+          //     width: double.infinity,
+          //     child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: <Widget>[
+          //         createImage(faceApiServices!.img1.image,
+          //             () => showAlertDialog(context, true)),
+          //         createImage(faceApiServices!.img2.image,
+          //             () => showAlertDialog(context, false)),
+          //         Container(margin: EdgeInsets.fromLTRB(0, 0, 0, 15)),
+          //         createButton(
+          //             "Match", () => faceApiServices?.matchFaces(context)),
+          //         createButton("Liveness", () => faceApiServices?.liveness()),
+          //         createButton(
+          //             "Clear", () => faceApiServices?.clearResults()),
+          //         Container(
+          //           margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
+          //           child: Row(
+          //             mainAxisAlignment: MainAxisAlignment.center,
+          //             children: [
+          //               Text("Similarity: " + faceApiServices!.similarity,
+          //                   style: TextStyle(fontSize: 18)),
+          //               Container(margin: EdgeInsets.fromLTRB(20, 0, 0, 0)),
+          //               Text("Liveness: " + faceApiServices!.islive,
+          //                   style: TextStyle(fontSize: 18))
+          //             ],
+          //           ),
+          //         )
+          //       ],
+          //     ),
+          //   ),
+          );
 }

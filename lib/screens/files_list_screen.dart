@@ -10,6 +10,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
+import '../services/facial_api_service.dart';
 import '../services/file.dart';
 import '../utils/constant_functions.dart';
 import 'Face Live/face_api_screen.dart';
@@ -35,6 +36,8 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+  FaceApiServices? faceApiServices;
+
   final spinkit = SpinKitFadingCircle(
     itemBuilder: (BuildContext context, int index) {
       return DecoratedBox(
@@ -63,6 +66,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context);
+    faceApiServices = Provider.of<FaceApiServices>(context);
   }
 
   Future<File> _pickFile() async {
@@ -83,14 +87,16 @@ class _FilesListScreenState extends State<FilesListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          try {
-            //Checks if the face is matched
-            final fatchMatched =
-                await Navigator.pushNamed(context, FaceApiScreen.routeName);
+          //Checks if the face is matched
+          faceApiServices!.faceMatched = false;
+          faceApiServices!.similarity = 'nill';
 
-            if (fatchMatched == true) {
+          final fatchMatched =
+              await Navigator.pushNamed(context, FaceApiScreen.routeName);
+          if (fatchMatched == true) {
+            File newFile = await _pickFile();
+            try {
               log('FatchMatched');
-              File newFile = await _pickFile();
               File encryptedFile = await authService.encryptFile(newFile);
               var id = await authService.uploadFilesToGoogleDrive(
                   encryptedFile!, widget.currentId);
@@ -98,13 +104,10 @@ class _FilesListScreenState extends State<FilesListScreen> {
               ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
               authService.progressPercentage = 0;
               print('id : $id');
-            } else {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(faceNotMatchedSnackBar);
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+              print('upload Error');
             }
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-            print('upload Error');
           }
         },
         child: const Icon(Icons.add),
