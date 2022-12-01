@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
+import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+  late GoogleDriveService googleDriveService;
   FaceApiServices? faceApiServices;
 
   final spinkit = SpinKitFadingCircle(
@@ -68,6 +70,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context);
     faceApiServices = Provider.of<FaceApiServices>(context);
+    googleDriveService = Provider.of<GoogleDriveService>(context);
   }
 
   Future<File> _pickFile() async {
@@ -99,13 +102,13 @@ class _FilesListScreenState extends State<FilesListScreen> {
           try {
             // log('FatchMatched');
 
-            authService.encryptFile(newFile).then((encryptedFile) async {
-              await authService
+            googleDriveService.encryptFile(newFile).then((encryptedFile) async {
+              await googleDriveService
                   .uploadFilesToGoogleDrive(encryptedFile, widget.currentId)
                   .then((id) {
                 print('uploaded');
                 ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-                authService.progressPercentage = 0;
+                googleDriveService.progressPercentage = 0;
                 print('id : $id');
               });
             });
@@ -145,7 +148,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                     ),
                   ),
                 ),
-                authService.fileSavedLocation.isNotEmpty
+                googleDriveService.fileSavedLocation.isNotEmpty
                     ? Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
@@ -157,7 +160,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                'File saved on location: ${authService.fileSavedLocation}',
+                                'File saved on location: ${googleDriveService.fileSavedLocation}',
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -165,37 +168,37 @@ class _FilesListScreenState extends State<FilesListScreen> {
                         ),
                       )
                     : Container(),
-                // authService.isEncrypting
-                //     ? const Center(
-                //         child: Text(
-                //           'Encrypting...',
-                //           style: TextStyle(
-                //             color: Colors.black,
-                //             fontSize: 24,
-                //             fontWeight: FontWeight.bold,
-                //           ),
-                //         ),
-                //       )
-                // : Container(),
-                authService.isEncrypting
+                googleDriveService.isEncrypting
+                    ? const Center(
+                        child: Text(
+                          'Encrypting...',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                : Container(),
+                googleDriveService.isEncrypting
                     ? const Center(
                         child: Text(
                           'Encrypting... Please don\'t close the app',
                         ),
                       )
                     : Container(),
-                authService.isDecrypting
+                googleDriveService.isDecrypting
                     ? const Center(
                         child: Text(
                           'Decrypting... Please don\'t close the app',
                         ),
                       )
                     : Container(),
-                authService.progressPercentage != 0
+                googleDriveService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Progress: ${authService.progressPercentage} %',
+                          'Progress: ${googleDriveService.progressPercentage} %',
                           textAlign: TextAlign.center,
                         ),
                       )
@@ -228,7 +231,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
                                         // if (fatchMatched == true) {
                                         File? newFile =
-                                            await authService.downloadFile(
+                                            await googleDriveService.downloadFile(
                                           widget.fileList[index].id.toString(),
                                           context,
                                           widget.fileList[index].name
@@ -247,7 +250,8 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                         File? decryptedFile;
                                         if (fileType == 'aes') {
                                           decryptedFile =
-                                              await authService.decryptFile(
+                                              await googleDriveService
+                                                  .decryptFile(
                                             newFile!,
                                           );
                                         } else {
@@ -296,10 +300,9 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                 onTap: () async {
                                   if (widget.fileList[index].mimeType ==
                                       "application/vnd.google-apps.folder") {
-                                    final files_list = await authService
-                                        .getAllFilesFromGoogleDrive(
-                                            widget.fileList[index].id
-                                                as String);
+                                    final files_list = await googleDriveService
+                                        .getAllFileFromGoogleDriveFromSpaceId(widget
+                                            .fileList[index].id as String);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(

@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:open_file/open_file.dart';
-import 'package:path/path.dart' as path;
+
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -27,13 +27,9 @@ class AuthService with ChangeNotifier {
   static String serverURl = 'https://pure-chamber-40901.herokuapp.com/api/';
 
   late BuildContext navigationContext;
-  int progressPercentage = 0;
-  String fileSavedLocation = '';
-  late Map<String, dynamic> fileMap = {};
+
   bool loading = false;
   bool signedIn = false;
-  bool isEncrypting = false;
-  bool isDecrypting = false;
   late client.Dio dio;
   late GoogleSignIn googleSignIn;
   late GoogleSignInAccount? currentUser;
@@ -81,49 +77,20 @@ class AuthService with ChangeNotifier {
 
   // Future<bool> googleSignIn() {}
 
-  saveDownloadedFileLocal(String fileName, String filePath) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> downloadedFile = {
-      fileName: filePath,
-    };
-
-    bool result =
-        await prefs.setString('downloadedFile', jsonEncode(downloadedFile));
-    if (result) {
-      print('*********File Downloaded Saved Local Storage*********');
-    }
-    // if (result) {
-    //   return downloadedFile;
-    // }
+  getGoogleAuth() async {
+    final GoogleSignInAccount? googleUser =
+        await googleSignIn.signIn().catchError((onError) {});
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    currentUser = googleUser;
+    return googleAuth;
   }
 
-  saveImageAddressLocal(String fileName, String filePath) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String, dynamic> profilePicAddress = {
-      fileName: filePath,
-    };
-
-    bool result =
-        await prefs.setString('profilePic', jsonEncode(profilePicAddress));
-    if (result) {
-      print('*********File Address Saved Local Storage*********');
-    }
-    // if (result) {
-    //   return downloadedFile;
-    // }
-  }
-
-  retrieveDownloadedFileLocal() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String? filePref = prefs.getString('downloadedFile');
-    // fileMap = jsonDecode(filePref!) as Map<String, dynamic>;
-    // notifyListeners();
-    // return fileMap;
-    // List<File> files_list =
-    Directory? newPath = await getExternalStorageDirectory();
-    final dir = Directory(newPath?.path as String);
-    final List<FileSystemEntity> entities = await dir.list().toList();
-    return entities;
+  getGoogleDriveClient() async {
+    var googleAuth = await getGoogleAuth();
+    var googleDriveClient =
+        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
+    return googleDriveClient;
   }
 
   googleSignInNew() async {
@@ -132,7 +99,7 @@ class AuthService with ChangeNotifier {
         await googleSignIn.signIn().catchError((onError) {});
     final GoogleSignInAuthentication googleAuth =
         await googleUser!.authentication;
-
+    currentUser = googleUser;
     signedIn = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
       await createUser('', googleAuth.accessToken.toString());
@@ -151,220 +118,6 @@ class AuthService with ChangeNotifier {
     log('Updated UID' + user.user.uid.toString());
     loading = false;
     notifyListeners();
-  }
-
-  Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive(
-      String? id) async {
-    loading = true;
-    notifyListeners();
-    final GoogleSignInAccount? googleUser =
-        await googleSignIn.signIn().catchError((onError) {});
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-    var googleDriveClient =
-        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    var files;
-    if (id != null) {
-      files = await googleDriveClient.list();
-    } else {
-      files = await googleDriveClient.listSpaceFolder(id!);
-    }
-    loading = false;
-    notifyListeners();
-    return files;
-  }
-
-  Future<List<GoogleDriveFileMetaData>> getAllFileFromGoogleDriveFromSpaceId(
-      String id) async {
-    loading = true;
-    notifyListeners();
-    final GoogleSignInAccount? googleUser =
-        await googleSignIn.signIn().catchError((onError) {});
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-    // print('c1');
-    var googleDriveClient =
-        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    var files = await googleDriveClient.listSpaceFolder(id);
-    loading = false;
-    notifyListeners();
-    return files;
-  }
-
-  Future createFolder(String folderName) async {
-    final driveApi = await _getDriveApi();
-    final driveFile = drive.File();
-    driveFile.mimeType = "application/vnd.google-apps.folder";
-    driveFile.name = folderName;
-
-    final folder = driveApi?.files.create(driveFile);
-    print(folder);
-  }
-
-  Future getDrives() async {
-    final driveApi = await _getDriveApi();
-    final drives = await driveApi?.drives.list();
-    drive.DriveList? driveList = drives as drive.DriveList;
-
-    if (driveList != null) {
-      print(driveList.drives);
-      driveList.drives?.forEach((element) {
-        print(element.name);
-      });
-    }
-
-    return driveList;
-  }
-
-  Future<File?> downloadFile(
-      String fileId, BuildContext context, String file_name) async {
-    if (await Permission.storage.request().isGranted) {
-      loading = true;
-      progressPercentage = 0;
-      notifyListeners();
-      final GoogleSignInAccount? googleUser =
-          await googleSignIn.signIn().catchError((onError) {});
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-      var googleDriveClient =
-          GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-      Directory? newPath = await getExternalStorageDirectory();
-      final filePath = "${newPath?.path}/$file_name";
-      final fileExist = await File(filePath).exists();
-      if (fileExist) {
-        loading = false;
-        notifyListeners();
-        return File(filePath);
-      } else {
-        File file = await googleDriveClient.download(fileId, file_name,
-            onDownloadProgress: (i, l) {
-          print('$i/$l');
-          progressPercentage = ((i / l) * 100).floor();
-          notifyListeners();
-        });
-        final newFile = await saveFile(file_name, file);
-        loading = false;
-        notifyListeners();
-        return newFile;
-      }
-    }
-    return null;
-  }
-
-  Future saveFile(String fileName, File file) async {
-    String path = await getFilePath(fileName);
-    Directory? newPath = await getExternalStorageDirectory();
-
-    file.copy('${newPath?.path}/$fileName');
-    File newFile = File('${newPath?.path}/$fileName');
-    print('saved file: ${fileName}');
-    print('new path: ${newPath?.path}/$fileName');
-
-    return newFile;
-  }
-
-  Future<File> decryptFile(File file) async {
-    isDecrypting = true;
-    notifyListeners();
-    final directories = await getExternalCacheDirectories();
-    final baseName = path.basename(file.path);
-    final nameWithoutAes = baseName.substring(0, baseName.length - 4);
-    print(nameWithoutAes);
-
-    final filePathFull = "${directories?.first.path}/$nameWithoutAes";
-    final fileExist = await File(filePathFull).exists();
-    String? decryptedFilePath;
-    if (!fileExist) {
-      AesCrypt crypt = AesCrypt();
-      crypt.aesSetMode(AesMode.cbc);
-      crypt.setOverwriteMode(AesCryptOwMode.rename);
-      crypt.setPassword(currentUser!.id);
-      try {
-        decryptedFilePath = await crypt.decryptFile(file.path, filePathFull);
-        print(decryptedFilePath);
-      } catch (e) {
-        print('error decrypting');
-      }
-    } else {
-      decryptedFilePath = filePathFull;
-      saveDownloadedFileLocal(nameWithoutAes, decryptedFilePath);
-    }
-
-    isDecrypting = false;
-    notifyListeners();
-
-    return File(decryptedFilePath!);
-  }
-
-  Future<File> encryptFile(File file) async {
-    isEncrypting = true;
-    notifyListeners();
-    AesCrypt crypt = AesCrypt();
-    crypt.aesSetMode(AesMode.cbc);
-    crypt.setPassword(currentUser!.id);
-
-    crypt.setOverwriteMode(AesCryptOwMode.rename);
-    String? encryptedFilePath;
-    try {
-      print('encrypting...');
-      encryptedFilePath = await crypt.encryptFile(file.path);
-      print('encrypted file path: $encryptedFilePath');
-      isEncrypting = false;
-    } catch (e) {
-      print('encryption error');
-      isEncrypting = false;
-    }
-    isEncrypting = false;
-    notifyListeners();
-    return File(encryptedFilePath as String);
-  }
-
-  Future<String> getFilePath(String fileName) async {
-    Directory appDocumentsDirectory =
-        await getApplicationDocumentsDirectory(); // 1
-    String appDocumentsPath = appDocumentsDirectory.path; // 2
-    String filePath = '$appDocumentsPath/$fileName'; // 3
-    return filePath;
-  }
-
-  Future<GoogleDriveFileMetaData> getFolderOrFile(String fileId) async {
-    final GoogleSignInAccount? googleUser =
-        await googleSignIn.signIn().catchError((onError) {});
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-    var googleDriveClient =
-        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    final file = await googleDriveClient.get(fileId);
-    return file;
-  }
-
-  Future uploadFilesToGoogleDrive(File file, String parent) async {
-    progressPercentage = 0;
-    loading = true;
-    notifyListeners();
-    final fileBaseName = file.absolute.toString();
-    final fileN = (fileBaseName.split('/').last);
-    final fileName = fileN.split('\'').first;
-    final GoogleSignInAccount? googleUser =
-        await googleSignIn.signIn().catchError((onError) {});
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-    var googleDriveClient =
-        GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-
-    GoogleDriveFileUploadMetaData metaData = GoogleDriveFileUploadMetaData(
-      name: fileName,
-    );
-
-    var id = await googleDriveClient.create(metaData, file,
-        onUploadProgress: (currentProgress, totalProgress) {
-      print('$currentProgress / $totalProgress');
-      progressPercentage = ((currentProgress / totalProgress) * 100).floor();
-      notifyListeners();
-    }, parent: parent);
-    loading = false;
-    notifyListeners();
-    return id;
   }
 
   Future uploadPic(String uid, String filePath) async {
@@ -426,20 +179,20 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  Future<void> handleSignOut() => googleSignIn.disconnect();
+  saveImageAddressLocal(String fileName, String filePath) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String, dynamic> profilePicAddress = {
+      fileName: filePath,
+    };
 
-  Future<drive.DriveApi?> _getDriveApi() async {
-    final googleUser = await googleSignIn.signIn();
-    final headers = await googleUser?.authHeaders;
-    if (headers == null) {
-      print('not signed in');
-      return null;
+    bool result =
+        await prefs.setString('profilePic', jsonEncode(profilePicAddress));
+    if (result) {
+      print('*********File Address Saved Local Storage*********');
     }
-
-    final client = GoogleAuthClient(headers);
-    final driveApi = drive.DriveApi(client);
-    return driveApi;
   }
+
+  Future<void> handleSignOut() => googleSignIn.disconnect();
 }
 
 class GoogleAuthClient extends http.BaseClient {

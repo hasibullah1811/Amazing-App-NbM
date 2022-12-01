@@ -6,9 +6,9 @@ import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/Face%20Live/face_api_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
-import 'package:amazing_app/screens/downloaded_files_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/open_file_screen.dart';
+import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:amazing_app/utils/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,6 +31,7 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
   late AuthService authService;
+  late GoogleDriveService googleDriveService;
   late List<FileSystemEntity> entities;
 
   @override
@@ -38,6 +39,7 @@ class _LandingScreenState extends State<LandingScreen> {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context);
+    googleDriveService = Provider.of<GoogleDriveService>(context);
   }
 
   @override
@@ -111,10 +113,10 @@ class _LandingScreenState extends State<LandingScreen> {
                         ),
                         child: InkWell(
                           onTap: () async {
-                            final files_list = await authService
+                            final files_list = await googleDriveService
                                 .getAllFileFromGoogleDriveFromSpaceId("root");
                             print(files_list);
-                            authService.progressPercentage = 0;
+                            googleDriveService.progressPercentage = 0;
                             Navigator.push(
                               context,
                               MaterialPageRoute(

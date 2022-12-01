@@ -18,12 +18,6 @@ class GoogleDriveClient {
       {GoogleDriveSpace? space, required String? token}) {
     _space = space ?? GoogleDriveSpace.appDataFolder;
 
-    // _dio.interceptors
-    //     .add(InterceptorsWrapper(onRequest: (RequestOptions options, handler) async {
-    //   options.headers['Authorization'] =
-    //       'Bearer ${token}';
-    //   return options.data;
-    // }));
 
     _dio.interceptors.add(
       InterceptorsWrapper(
