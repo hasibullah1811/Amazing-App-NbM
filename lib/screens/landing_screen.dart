@@ -121,7 +121,7 @@ class _LandingScreenState extends State<LandingScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: ((context) =>
-                                    FilesListScreen(fileList: files_list)),
+                                    FilesListScreen(fileList: files_list,)),
                               ),
                             );
                           },

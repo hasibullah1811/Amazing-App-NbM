@@ -1,24 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:amazing_app/services/client.dart';
-import 'package:amazing_app/services/file.dart';
-import 'package:googleapis_auth/auth_io.dart';
-import 'package:googleapis_auth/googleapis_auth.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:amazing_app/models/user.dart';
-import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:dio/dio.dart' as client;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:open_file/open_file.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService with ChangeNotifier {
@@ -56,9 +47,10 @@ class AuthService with ChangeNotifier {
         scopes: [
           'email',
           drive.DriveApi.driveFileScope,
+          
           drive.DriveApi.driveAppdataScope,
           drive.DriveApi.driveMetadataScope,
-          drive.DriveApi.driveScope,
+          // drive.DriveApi.driveScope,
         ],
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -74,8 +66,6 @@ class AuthService with ChangeNotifier {
       //web or desktop specific code
     }
   }
-
-  // Future<bool> googleSignIn() {}
 
   getGoogleAuth() async {
     final GoogleSignInAccount? googleUser =

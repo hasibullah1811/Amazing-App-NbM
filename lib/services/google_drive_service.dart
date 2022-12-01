@@ -18,7 +18,8 @@ class GoogleDriveService with ChangeNotifier {
   bool loading = true;
   bool isDecrypting = false;
   int progressPercentage = 0;
-  String currentParent = 'root';
+  late Map<String, List<GoogleDriveFileMetaData>> fileList;
+  // String currentParent = 'root';
   String fileSavedLocation = '';
   late Map<String, dynamic> fileMap = {};
   late AuthService authService;
@@ -26,6 +27,7 @@ class GoogleDriveService with ChangeNotifier {
   // GoogleDriveService(this.authService);
   GoogleDriveService() {
     authService = AuthService();
+    fileList = {};
   }
 
   retrieveDownloadedFileLocal() async {
@@ -51,28 +53,6 @@ class GoogleDriveService with ChangeNotifier {
     // }
   }
 
-  // Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive(
-  //     String? id) async {
-  //   loading = true;
-  //   notifyListeners();
-  //   var googleDriveClient = await authService.getGoogleDriveClient();
-  //   var files;
-  //   if (id != null) {
-  //     files = await googleDriveClient.list();
-  //   } else {
-  //     files = await googleDriveClient.listSpaceFolder(id!);
-  //   }
-  //   //sort files by folder and file
-  //   // files.sort((a, b) => a.mimeType == "vnd.google-apps.folder" ? 0: 1);
-  //   files.forEach((element) async {
-  //     var file = await googleDriveClient.get(element.id as String);
-  //     print("${file.name} - ${file.id} - ${file.spaces}");
-  //   });
-  //   loading = false;
-  //   notifyListeners();
-  //   return files;
-  // }
-
   Future<List<GoogleDriveFileMetaData>> getAllFileFromGoogleDriveFromSpaceId(
       String id) async {
     loading = true;
@@ -81,10 +61,10 @@ class GoogleDriveService with ChangeNotifier {
     var googleAuth = await authService.getGoogleAuth();
     var googleDriveClient = GoogleDriveClient(authService.dio,
         token: googleAuth.accessToken.toString());
-    var files = await googleDriveClient.listSpaceFolder(id);
+    fileList[id] = await googleDriveClient.listSpaceFolder(id);
     loading = false;
     notifyListeners();
-    return files;
+    return fileList[id]!;
   }
 
   Future createFolder(String folderName) async {
@@ -245,6 +225,7 @@ class GoogleDriveService with ChangeNotifier {
       progressPercentage = ((currentProgress / totalProgress) * 100).floor();
       notifyListeners();
     }, parent: parent);
+    fileList[parent] = await getAllFileFromGoogleDriveFromSpaceId(parent);
     loading = false;
     notifyListeners();
     return id;
