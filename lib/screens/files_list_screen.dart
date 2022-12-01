@@ -21,13 +21,13 @@ import 'package:mime_type/mime_type.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
-  final List<GoogleDriveFileMetaData> fileList;
+  // final List<GoogleDriveFileMetaData> fileList;
   final bool? uploading;
   final String currentId;
 
   const FilesListScreen(
       {super.key,
-      required this.fileList,
+      // required this.fileList,
       this.uploading = false,
       this.currentId = "root"});
 
@@ -182,7 +182,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                         height: 500,
                         width: size.width,
                         child: ListView.builder(
-                            itemCount: widget.fileList.length,
+                            itemCount: googleDriveService.fileList[widget.currentId]?.length,
                             itemBuilder: (BuildContext context, int index) {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -195,13 +195,18 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                           null
                                       ? ListTile(
                                           iconColor: Colors.blue,
-                                          leading: widget.fileList[index]
+                                          leading: googleDriveService
+                                                      .fileList[widget
+                                                          .currentId]?[index]
                                                       .mimeType !=
                                                   "application/vnd.google-apps.folder"
                                               ? IconButton(
                                                   onPressed: () async {
                                                     print(
-                                                      widget.fileList[index].id
+                                                      googleDriveService
+                                                          .fileList[
+                                                              widget.currentId]?[index]
+                                                          .id
                                                           .toString(),
                                                     );
                                                     //Checks if the face is matched
@@ -213,22 +218,36 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                     File? newFile =
                                                         await googleDriveService
                                                             .downloadFile(
-                                                      widget.fileList[index].id
-                                                          .toString(),
+                                                      googleDriveService
+                                                          .fileList[
+                                                              widget.currentId]
+                                                              ?[index]
+                                                          .id
+                                                          .toString() as String,
                                                       context,
-                                                      widget
-                                                          .fileList[index].name
-                                                          .toString(),
+                                                     googleDriveService
+                                                          .fileList[
+                                                              widget.currentId]
+                                                              ?[index]
+                                                          .name
+                                                          .toString() as String,
                                                     );
 
-                                                    var fileType = widget
-                                                        .fileList[index].name
+                                                    var fileType = googleDriveService
+                                                            .fileList[widget
+                                                                    .currentId]
+                                                                ?[index]
+                                                            .name
                                                         .toString()
-                                                        .substring(widget
-                                                                .fileList[index]
+                                                        .substring(
+                                                            (googleDriveService
+                                                                    .fileList[
+                                                                        widget
+                                                                            .currentId]
+                                                                        ?[index]
                                                                 .name
                                                                 .toString()
-                                                                .length -
+                                                                .length as int) -
                                                             3);
 
                                                     File? decryptedFile;
@@ -272,15 +291,23 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                   onPressed: () {},
                                                   icon: const Icon(
                                                       CupertinoIcons.folder)),
-                                          subtitle: Text(getFormattedDate(widget
-                                              .fileList[index].modifiedTime
-                                              .toString())),
-                                          trailing: widget.fileList[index]
+                                          subtitle: Text(getFormattedDate(
+                                              googleDriveService
+                                                  .fileList[widget.currentId]
+                                                      ?[index]
+                                                  .modifiedTime
+                                              .toString() as String)),
+                                          trailing: googleDriveService
+                                                      .fileList[widget
+                                                          .currentId]?[index]
                                                       .mimeType !=
                                                   "application/vnd.google-apps.folder"
                                               ? Text(
                                                   formatBytes(
-                                                      widget.fileList[index]
+                                                     googleDriveService
+                                                              .fileList[widget
+                                                                      .currentId]
+                                                                  ?[index]
                                                               .size ??
                                                           0 as int,
                                                       2),
@@ -290,23 +317,30 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                               : const Text(''),
                                           title: GestureDetector(
                                             onTap: () async {
-                                              if (widget.fileList[index]
+                                              if (googleDriveService
+                                                      .fileList[widget
+                                                          .currentId]?[index]
                                                       .mimeType ==
                                                   "application/vnd.google-apps.folder") {
                                                 final files_list =
                                                     await googleDriveService
                                                         .getAllFileFromGoogleDriveFromSpaceId(
-                                                            widget
-                                                                .fileList[index]
+                                                            googleDriveService
+                                                                .fileList[widget
+                                                                        .currentId]
+                                                                    ?[index]
                                                                 .id as String);
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: ((context) =>
                                                         FilesListScreen(
-                                                          fileList: files_list,
-                                                          currentId: widget
-                                                              .fileList[index]
+                                                          // fileList: files_list,
+                                                          currentId: googleDriveService
+                                                                  .fileList[
+                                                                      widget
+                                                                          .currentId]
+                                                                      ?[index]
                                                               .id as String,
                                                         )),
                                                   ),
@@ -314,8 +348,11 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                               }
                                             },
                                             child: Text(
-                                              widget.fileList[index].name
-                                                  .toString(),
+                                              googleDriveService
+                                                  .fileList[widget.currentId]
+                                                      ?[index]
+                                                  .name
+                                                  .toString() as String,
                                             ),
                                           ),
                                         )
