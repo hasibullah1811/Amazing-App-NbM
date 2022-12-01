@@ -31,7 +31,9 @@ class _OpenFileScreenState extends State<OpenFileScreen> {
         title: Text('Amazing App File Viewer'),
       ),
       body: SafeArea(
-        child: (widget.mimeType == 'image/jpeg')
+        child: (widget.mimeType == 'image/jpeg' ||
+                widget.mimeType == 'image/png' ||
+                widget.mimeType == 'image/gif' )
             ? Center(child: Image.file(widget.imageFile))
             : (widget.mimeType == 'application/pdf')
                 ? SfPdfViewer.file(File(

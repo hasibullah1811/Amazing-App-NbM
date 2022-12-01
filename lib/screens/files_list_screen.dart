@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -91,24 +92,35 @@ class _FilesListScreenState extends State<FilesListScreen> {
           faceApiServices!.faceMatched = false;
           faceApiServices!.similarity = 'nill';
 
-          final fatchMatched =
-              await Navigator.pushNamed(context, FaceApiScreen.routeName);
-          if (fatchMatched == true) {
-            File newFile = await _pickFile();
-            try {
-              log('FatchMatched');
-              File encryptedFile = await authService.encryptFile(newFile);
-              var id = await authService.uploadFilesToGoogleDrive(
-                  encryptedFile!, widget.currentId);
-              print('uploaded');
-              ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-              authService.progressPercentage = 0;
-              print('id : $id');
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-              print('upload Error');
-            }
+          // final fatchMatched =
+          // await Navigator.pushNamed(context, FaceApiScreen.routeName);
+          // if (fatchMatched == true) {
+          File newFile = await _pickFile();
+          try {
+            // log('FatchMatched');
+
+            authService.encryptFile(newFile).then((encryptedFile) async {
+              await authService
+                  .uploadFilesToGoogleDrive(encryptedFile, widget.currentId)
+                  .then((id) {
+                print('uploaded');
+                ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+                authService.progressPercentage = 0;
+                print('id : $id');
+              });
+            });
+            // File encryptedFile = await authService.encryptFile(newFile);
+            // var id = await authService.uploadFilesToGoogleDrive(
+            //     encryptedFile, widget.currentId);
+            // print('uploaded');
+            // ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+            // authService.progressPercentage = 0;
+            // print('id : $id');
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+            print('upload Error');
           }
+          // }
         },
         child: const Icon(Icons.add),
       ),
@@ -153,6 +165,32 @@ class _FilesListScreenState extends State<FilesListScreen> {
                         ),
                       )
                     : Container(),
+                // authService.isEncrypting
+                //     ? const Center(
+                //         child: Text(
+                //           'Encrypting...',
+                //           style: TextStyle(
+                //             color: Colors.black,
+                //             fontSize: 24,
+                //             fontWeight: FontWeight.bold,
+                //           ),
+                //         ),
+                //       )
+                // : Container(),
+                authService.isEncrypting
+                    ? const Center(
+                        child: Text(
+                          'Encrypting... Please don\'t close the app',
+                        ),
+                      )
+                    : Container(),
+                authService.isDecrypting
+                    ? const Center(
+                        child: Text(
+                          'Decrypting... Please don\'t close the app',
+                        ),
+                      )
+                    : Container(),
                 authService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -184,57 +222,56 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                           widget.fileList[index].id.toString(),
                                         );
                                         //Checks if the face is matched
-                                        final fatchMatched =
-                                            await Navigator.pushNamed(context,
-                                                FaceApiScreen.routeName);
+                                        // final fatchMatched =
+                                        //     await Navigator.pushNamed(context,
+                                        //         FaceApiScreen.routeName);
 
-                                        if (fatchMatched == true) {
-                                          File? newFile =
-                                              await authService.downloadFile(
-                                            widget.fileList[index].id
-                                                .toString(),
-                                            context,
-                                            widget.fileList[index].name
-                                                .toString(),
-                                          );
+                                        // if (fatchMatched == true) {
+                                        File? newFile =
+                                            await authService.downloadFile(
+                                          widget.fileList[index].id.toString(),
+                                          context,
+                                          widget.fileList[index].name
+                                              .toString(),
+                                        );
 
-                                          var fileType = widget
-                                              .fileList[index].name
-                                              .toString()
-                                              .substring(widget
-                                                      .fileList[index].name
-                                                      .toString()
-                                                      .length -
-                                                  3);
+                                        var fileType = widget
+                                            .fileList[index].name
+                                            .toString()
+                                            .substring(widget
+                                                    .fileList[index].name
+                                                    .toString()
+                                                    .length -
+                                                3);
 
-                                          File? decryptedFile;
-                                          if (fileType == 'aes') {
-                                            decryptedFile =
-                                                await authService.decryptFile(
-                                              newFile!,
-                                            );
-                                          } else {
-                                            decryptedFile = newFile!;
-                                          }
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(snackBar);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: ((context) =>
-                                                  OpenFileScreen(
-                                                    imageFile: decryptedFile!,
-                                                    mimeType:
-                                                        mime(decryptedFile.path)
-                                                            as String,
-                                                  )),
-                                            ),
+                                        File? decryptedFile;
+                                        if (fileType == 'aes') {
+                                          decryptedFile =
+                                              await authService.decryptFile(
+                                            newFile!,
                                           );
                                         } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                                  faceNotMatchedSnackBar);
+                                          decryptedFile = newFile!;
                                         }
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: ((context) =>
+                                                OpenFileScreen(
+                                                  imageFile: decryptedFile!,
+                                                  mimeType:
+                                                      mime(decryptedFile.path)
+                                                          as String,
+                                                )),
+                                          ),
+                                        );
+                                        // } else {
+                                        //   ScaffoldMessenger.of(context)
+                                        //       .showSnackBar(
+                                        //           faceNotMatchedSnackBar);
+                                        // }
                                       },
                                       icon: const Icon(
                                           CupertinoIcons.cloud_download),
@@ -260,7 +297,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                   if (widget.fileList[index].mimeType ==
                                       "application/vnd.google-apps.folder") {
                                     final files_list = await authService
-                                        .getAllFileFromGoogleDriveFromSpaceId(
+                                        .getAllFilesFromGoogleDrive(
                                             widget.fileList[index].id
                                                 as String);
                                     Navigator.push(
@@ -286,16 +323,6 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 ),
               ],
             ),
-            authService.isEncrypting
-                ? CircularProgressIndicator(
-                    strokeWidth: 2,
-                  )
-                : Container(),
-            authService.isDecrypting
-                ? CircularProgressIndicator(
-                    strokeWidth: 2,
-                  )
-                : Container(),
           ],
         ),
       ),

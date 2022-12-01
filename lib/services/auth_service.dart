@@ -153,7 +153,8 @@ class AuthService with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive() async {
+  Future<List<GoogleDriveFileMetaData>> getAllFilesFromGoogleDrive(
+      String? id) async {
     loading = true;
     notifyListeners();
     final GoogleSignInAccount? googleUser =
@@ -162,11 +163,12 @@ class AuthService with ChangeNotifier {
         await googleUser!.authentication;
     var googleDriveClient =
         GoogleDriveClient(dio, token: googleAuth.accessToken.toString());
-    var files = await googleDriveClient.list();
-    files.forEach((element) async {
-      var file = await googleDriveClient.get(element.id as String);
-      print("${file.name} - ${file.id} - ${file.spaces}");
-    });
+    var files;
+    if (id != null) {
+      files = await googleDriveClient.list();
+    } else {
+      files = await googleDriveClient.listSpaceFolder(id!);
+    }
     loading = false;
     notifyListeners();
     return files;
@@ -278,7 +280,7 @@ class AuthService with ChangeNotifier {
       crypt.setOverwriteMode(AesCryptOwMode.rename);
       crypt.setPassword(currentUser!.id);
       try {
-        decryptedFilePath = crypt.decryptFileSync(file.path, filePathFull);
+        decryptedFilePath = await crypt.decryptFile(file.path, filePathFull);
         print(decryptedFilePath);
       } catch (e) {
         print('error decrypting');
@@ -305,7 +307,7 @@ class AuthService with ChangeNotifier {
     String? encryptedFilePath;
     try {
       print('encrypting...');
-      encryptedFilePath = crypt.encryptFileSync(file.path);
+      encryptedFilePath = await crypt.encryptFile(file.path);
       print('encrypted file path: $encryptedFilePath');
       isEncrypting = false;
     } catch (e) {
@@ -407,7 +409,7 @@ class AuthService with ChangeNotifier {
         },
       );
       if (res.statusCode == 200) {
-        log('res' + res.data.toString());
+        log('res ${res.data}');
         userUID = res.data['uid'];
         if (res.data['pic'] == '') {
           pictureUploaded = false;
