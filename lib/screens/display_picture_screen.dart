@@ -11,8 +11,10 @@ import '../custom_widgets/custom_button_large.dart';
 // A widget that displays the picture taken by the user.
 class DisplayPictureScreen extends StatefulWidget {
   final String imagePath;
+  final ImageProvider<Object> image;
 
-  const DisplayPictureScreen({super.key, required this.imagePath});
+  const DisplayPictureScreen(
+      {super.key, required this.imagePath, required this.image});
 
   @override
   State<DisplayPictureScreen> createState() => _DisplayPictureScreenState();
@@ -68,6 +70,23 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
       body: Image.file(File(widget.imagePath)),
+      // body: Container(
+      //   child: ClipRRect(
+      //     borderRadius: BorderRadius.circular(20.0),
+      //     child: Image(height: 150, width: 150, image: widget.imagePath),
+      //   ),
+      // ),
     );
   }
+
+  Widget createImage(image, VoidCallback onPress) => Material(
+          child: InkWell(
+        onTap: onPress,
+        child: Container(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.0),
+            child: Image(height: 150, width: 150, image: image),
+          ),
+        ),
+      ));
 }

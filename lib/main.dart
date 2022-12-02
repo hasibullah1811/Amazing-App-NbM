@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:amazing_app/screens/Face%20Live/face_api_screen.dart';
 import 'package:amazing_app/screens/files_list_screen.dart';
 import 'package:amazing_app/screens/open_file_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
@@ -8,6 +9,8 @@ import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/screens/onboarding_screen.dart';
 import 'package:amazing_app/services/camera_service.dart';
+import 'package:amazing_app/services/facial_api_service.dart';
+import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:camera/camera.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/capture_face_live.dart';
@@ -42,6 +45,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => CameraService()),
+        ChangeNotifierProvider(create: (_) => FaceApiServices()),
+        ChangeNotifierProvider(create: (_) => GoogleDriveService()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -60,6 +65,7 @@ class MyApp extends StatelessWidget {
           CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
           LandingScreen.routeName: (context) => const LandingScreen(),
+          FaceApiScreen.routeName: (context) => FaceApiScreen(),
         },
       ),
     );
