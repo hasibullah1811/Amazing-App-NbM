@@ -16,7 +16,6 @@ class GoogleDriveClient {
       {GoogleDriveSpace? space, required String? token}) {
     _space = space ?? GoogleDriveSpace.appDataFolder;
 
-
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (request, handler) {
@@ -203,7 +202,7 @@ class GoogleDriveClient {
       uploadUrl,
       options: Options(headers: {'Content-Length': file.lengthSync()}),
       data: file.openRead(),
-      onSendProgress: (count, total) => onUploadProgress?.call(count, total),
+      onSendProgress: (count, total) => onUploadProgress.call(count, total),
     );
     print('ITs being uploaded $token - $file - ${metaData.toString()}');
     return await get(uploadResponse.data['id']);
@@ -221,7 +220,7 @@ class GoogleDriveClient {
       },
       options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),
       onReceiveProgress: (count, total) =>
-          onDownloadProgress?.call(count, total),
+          onDownloadProgress.call(count, total),
     );
     return File(path);
   }

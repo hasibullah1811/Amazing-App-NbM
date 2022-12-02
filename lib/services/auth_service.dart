@@ -47,10 +47,10 @@ class AuthService with ChangeNotifier {
         scopes: [
           'email',
           drive.DriveApi.driveFileScope,
-          
+
           drive.DriveApi.driveAppdataScope,
           drive.DriveApi.driveMetadataScope,
-          // drive.DriveApi.driveScope,
+          drive.DriveApi.driveScope,
         ],
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -76,7 +76,7 @@ class AuthService with ChangeNotifier {
     return googleAuth;
   }
 
-  getGoogleDriveClient() async {
+  Future<GoogleDriveClient> getGoogleDriveClient() async {
     var googleAuth = await getGoogleAuth();
     var googleDriveClient =
         GoogleDriveClient(dio, token: googleAuth.accessToken.toString());

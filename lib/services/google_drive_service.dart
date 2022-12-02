@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:amazing_app/services/auth_service.dart';
-import 'package:amazing_app/services/client.dart';
 import 'package:amazing_app/services/file.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
@@ -48,19 +47,13 @@ class GoogleDriveService with ChangeNotifier {
     if (result) {
       print('*********File Downloaded Saved Local Storage*********');
     }
-    // if (result) {
-    //   return downloadedFile;
-    // }
   }
 
   Future<List<GoogleDriveFileMetaData>> getAllFileFromGoogleDriveFromSpaceId(
       String id) async {
     loading = true;
     notifyListeners();
-    // print('c1');
-    var googleAuth = await authService.getGoogleAuth();
-    var googleDriveClient = GoogleDriveClient(authService.dio,
-        token: googleAuth.accessToken.toString());
+    var googleDriveClient = await authService.getGoogleDriveClient();
     fileList[id] = await googleDriveClient.listSpaceFolder(id);
     loading = false;
     notifyListeners();
@@ -98,9 +91,7 @@ class GoogleDriveService with ChangeNotifier {
       loading = true;
       progressPercentage = 0;
       notifyListeners();
-      var googleAuth = await authService.getGoogleAuth();
-      var googleDriveClient = GoogleDriveClient(authService.dio,
-          token: googleAuth.accessToken.toString());
+      var googleDriveClient = await authService.getGoogleDriveClient();
       Directory? newPath = await getExternalStorageDirectory();
       final filePath = "${newPath?.path}/$file_name";
       final fileExist = await File(filePath).exists();

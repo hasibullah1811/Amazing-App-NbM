@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_filereader/flutter_filereader.dart';
+import 'package:open_file/open_file.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class OpenFileScreen extends StatefulWidget {
@@ -31,17 +31,27 @@ class _OpenFileScreenState extends State<OpenFileScreen> {
         title: Text('Amazing App File Viewer'),
       ),
       body: SafeArea(
-          child: (widget.mimeType == 'image/jpeg' ||
-                  widget.mimeType == 'image/png' ||
-                  widget.mimeType == 'image/gif')
-              ? Center(child: Image.file(widget.file))
-              : (widget.mimeType == 'application/pdf')
-                  ? SfPdfViewer.file(File(
-                      widget.file.path,
-                    ))
-                  : Center(
-                      child: Text(
-                          'Following filetype is not supported ${widget.mimeType}'))),
+        child: (widget.mimeType == 'image/jpeg' ||
+                widget.mimeType == 'image/png' ||
+                widget.mimeType == 'image/gif')
+            ? Center(child: Image.file(widget.file))
+            : (widget.mimeType == 'application/pdf')
+                ? SfPdfViewer.file(File(
+                    widget.file.path,
+                  ))
+                : Column(
+                    children: [
+                      Center(
+                          child: Text('Following filetype is not supported')),
+                      ElevatedButton(
+                        onPressed: () {
+                          OpenFile.open(widget.file.path);
+                        },
+                        child: const Text('Open With External Application'),
+                      ),
+                    ],
+                  ),
+      ),
     );
   }
 }

@@ -209,13 +209,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.1.0"
-  flutter_filereader:
-    dependency: "direct main"
-    description:
-      name: flutter_filereader
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:

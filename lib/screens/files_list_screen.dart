@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
 import '../services/facial_api_service.dart';
-import '../services/file.dart';
 import '../utils/constant_functions.dart';
 import 'Face Live/face_api_screen.dart';
 import 'open_file_screen.dart';
@@ -42,7 +40,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
   final spinkit = SpinKitFadingCircle(
     itemBuilder: (BuildContext context, int index) {
-      return DecoratedBox(
+      return const DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.green,
         ),
@@ -95,7 +93,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
   Future<bool> _faceMatch() async {
     //comment out this line for face recognition.
-    return true;
+    // return true;
 
     faceApiServices!.faceMatched = false;
     faceApiServices!.similarity = 'nill';
@@ -114,12 +112,11 @@ class _FilesListScreenState extends State<FilesListScreen> {
             .encryptFile(newFile)
             .then((encryptedFile) async {
           await googleDriveService
-              .uploadFilesToGoogleDrive(encryptedFile!, widget.currentId)
+              .uploadFilesToGoogleDrive(encryptedFile, widget.currentId)
               .then((id) {
             print('uploaded');
             ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-            
-            
+
             print('id : $id');
           });
         });
@@ -132,17 +129,8 @@ class _FilesListScreenState extends State<FilesListScreen> {
   }
 
   _downloadFile(int index) async {
-    // print(
-    //   googleDriveService.fileList[widget.currentId]?[index].id.toString(),
-    // );
-    //Checks if the face is matched
-    // final fatchMatched =
-    //     await Navigator.pushNamed(context, FaceApiScreen.routeName);
-
     if (await _faceMatch() == true) {
-      File? newFile =
-          // ignore: use_build_context_synchronously
-          await googleDriveService.downloadFile(
+      File? newFile = await googleDriveService.downloadFile(
         googleDriveService.fileList[widget.currentId]?[index].id.toString()
             as String,
         context,
@@ -156,8 +144,6 @@ class _FilesListScreenState extends State<FilesListScreen> {
                   .toString()
                   .length as int) -
               3);
-
-      log('fileType: $fileType');
 
       File? decryptedFile;
       if (fileType == 'aes') {
@@ -239,10 +225,6 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 googleDriveService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
-                        // child: Text(
-                        //   'Progress: ${googleDriveService.progressPercentage} %',
-                        //   textAlign: TextAlign.center,
-                        // ),
                         child: Row(
                           children: [
                             SizedBox(
