@@ -118,6 +118,8 @@ class GoogleDriveService with ChangeNotifier {
         final newFile = await saveFile(file_name, file);
         loading = false;
         notifyListeners();
+        progressPercentage = 0;
+        notifyListeners();
         return newFile;
       }
     }
@@ -227,6 +229,8 @@ class GoogleDriveService with ChangeNotifier {
     }, parent: parent);
     fileList[parent] = await getAllFileFromGoogleDriveFromSpaceId(parent);
     loading = false;
+    notifyListeners();
+    progressPercentage = 0;
     notifyListeners();
     return id;
   }

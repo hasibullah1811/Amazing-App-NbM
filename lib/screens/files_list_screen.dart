@@ -63,6 +63,10 @@ class _FilesListScreenState extends State<FilesListScreen> {
     content: Text('Oops! Your face is not matched. Are you trying to steal?'),
   );
 
+  static showSnackbar(BuildContext context, SnackBar snackBar) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
@@ -74,14 +78,111 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
   Future<File> _pickFile() async {
     //With parameters:
-    FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
-      allowedFileExtensions: ['jpg', 'pdf', 'doc'],
-      allowedMimeTypes: ['application/*'],
-      invalidFileNameSymbols: ['/'],
-    );
-    final path = await FlutterDocumentPicker.openDocument();
-    File newFile = File(path as String);
-    return newFile;
+    try {
+      FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
+        allowedFileExtensions: ['jpg', 'pdf', 'doc'],
+        allowedMimeTypes: ['application/*'],
+        invalidFileNameSymbols: ['/'],
+      );
+      final path = await FlutterDocumentPicker.openDocument();
+      File newFile = File(path as String);
+      return newFile;
+    } catch (e) {
+      print(e);
+      return File("");
+    }
+  }
+
+  Future<bool> _faceMatch() async {
+    //comment out this line for face recognition.
+    return true;
+
+    faceApiServices!.faceMatched = false;
+    faceApiServices!.similarity = 'nill';
+
+    final faceMatched =
+        await Navigator.pushNamed(context, FaceApiScreen.routeName);
+    return faceMatched as bool;
+  }
+
+  _uploadFile() async {
+    if (await _faceMatch() == true) {
+      File newFile = await _pickFile();
+      try {
+        log('FatchMatched');
+        await googleDriveService
+            .encryptFile(newFile)
+            .then((encryptedFile) async {
+          await googleDriveService
+              .uploadFilesToGoogleDrive(encryptedFile!, widget.currentId)
+              .then((id) {
+            print('uploaded');
+            ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+            
+            
+            print('id : $id');
+          });
+        });
+      } catch (e) {
+        // ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+        showSnackbar(context, errorSnackBar);
+        print('upload Error');
+      }
+    }
+  }
+
+  _downloadFile(int index) async {
+    // print(
+    //   googleDriveService.fileList[widget.currentId]?[index].id.toString(),
+    // );
+    //Checks if the face is matched
+    // final fatchMatched =
+    //     await Navigator.pushNamed(context, FaceApiScreen.routeName);
+
+    if (await _faceMatch() == true) {
+      File? newFile =
+          // ignore: use_build_context_synchronously
+          await googleDriveService.downloadFile(
+        googleDriveService.fileList[widget.currentId]?[index].id.toString()
+            as String,
+        context,
+        googleDriveService.fileList[widget.currentId]?[index].name.toString()
+            as String,
+      );
+
+      var fileType = googleDriveService.fileList[widget.currentId]?[index].name
+          .toString()
+          .substring((googleDriveService.fileList[widget.currentId]?[index].name
+                  .toString()
+                  .length as int) -
+              3);
+
+      log('fileType: $fileType');
+
+      File? decryptedFile;
+      if (fileType == 'aes') {
+        decryptedFile = await googleDriveService.decryptFile(
+          newFile!,
+        );
+      } else {
+        decryptedFile = newFile!;
+      }
+
+      if (!mounted) return;
+      showSnackbar(context, snackBar);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: ((context) => OpenFileScreen(
+                file: decryptedFile!,
+                mimeType: mime(decryptedFile.path) as String,
+              )),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(faceNotMatchedSnackBar);
+    }
   }
 
   @override
@@ -90,39 +191,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          //Checks if the face is matched
-          faceApiServices!.faceMatched = false;
-          faceApiServices!.similarity = 'nill';
-
-          // final fatchMatched =
-          // await Navigator.pushNamed(context, FaceApiScreen.routeName);
-          // if (fatchMatched == true) {
-          File newFile = await _pickFile();
-          try {
-            log('FatchMatched');
-            await googleDriveService
-                .encryptFile(newFile)
-                .then((encryptedFile) async {
-              await googleDriveService
-                  .uploadFilesToGoogleDrive(encryptedFile!, widget.currentId)
-                  .then((id) {
-                print('uploaded');
-                ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-                googleDriveService.progressPercentage = 0;
-                print('id : $id');
-              });
-            });
-            // File encryptedFile = await googleDriveService.encryptFile(newFile);
-            // var id = await googleDriveService.uploadFilesToGoogleDrive(
-            //     encryptedFile!, widget.currentId);
-            // print('uploaded');
-            // ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-            // googleDriveService.progressPercentage = 0;
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-            print('upload Error');
-          }
-          // }
+          _uploadFile();
         },
         child: const Icon(Icons.add),
       ),
@@ -170,19 +239,35 @@ class _FilesListScreenState extends State<FilesListScreen> {
                 googleDriveService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Progress: ${googleDriveService.progressPercentage} %',
-                          textAlign: TextAlign.center,
+                        // child: Text(
+                        //   'Progress: ${googleDriveService.progressPercentage} %',
+                        //   textAlign: TextAlign.center,
+                        // ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.80,
+                              child: LinearProgressIndicator(
+                                value:
+                                    googleDriveService.progressPercentage / 100,
+                              ),
+                            ),
+                            const Spacer(),
+                            Text(
+                              '${googleDriveService.progressPercentage} %',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       )
                     : Container(),
                 googleDriveService.fileList[widget.currentId] != null
-                    ? 
-                    Container(
-                        height: 500,
+                    ? SizedBox(
+                        height: size.height * 0.70,
                         width: size.width,
                         child: ListView.builder(
-                            itemCount: googleDriveService.fileList[widget.currentId]?.length,
+                            itemCount: googleDriveService
+                                .fileList[widget.currentId]?.length,
                             itemBuilder: (BuildContext context, int index) {
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -202,86 +287,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                   "application/vnd.google-apps.folder"
                                               ? IconButton(
                                                   onPressed: () async {
-                                                    print(
-                                                      googleDriveService
-                                                          .fileList[
-                                                              widget.currentId]?[index]
-                                                          .id
-                                                          .toString(),
-                                                    );
-                                                    //Checks if the face is matched
-                                                    // final fatchMatched =
-                                                    //     await Navigator.pushNamed(context,
-                                                    //         FaceApiScreen.routeName);
-
-                                                    // if (fatchMatched == true) {
-                                                    File? newFile =
-                                                        await googleDriveService
-                                                            .downloadFile(
-                                                      googleDriveService
-                                                          .fileList[
-                                                              widget.currentId]
-                                                              ?[index]
-                                                          .id
-                                                          .toString() as String,
-                                                      context,
-                                                     googleDriveService
-                                                          .fileList[
-                                                              widget.currentId]
-                                                              ?[index]
-                                                          .name
-                                                          .toString() as String,
-                                                    );
-
-                                                    var fileType = googleDriveService
-                                                            .fileList[widget
-                                                                    .currentId]
-                                                                ?[index]
-                                                            .name
-                                                        .toString()
-                                                        .substring(
-                                                            (googleDriveService
-                                                                    .fileList[
-                                                                        widget
-                                                                            .currentId]
-                                                                        ?[index]
-                                                                .name
-                                                                .toString()
-                                                                .length as int) -
-                                                            3);
-
-                                                    File? decryptedFile;
-                                                    if (fileType == 'aes') {
-                                                      decryptedFile =
-                                                          await googleDriveService
-                                                              .decryptFile(
-                                                        newFile!,
-                                                      );
-                                                    } else {
-                                                      decryptedFile = newFile!;
-                                                    }
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(snackBar);
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: ((context) =>
-                                                            OpenFileScreen(
-                                                              imageFile:
-                                                                  decryptedFile!,
-                                                              mimeType: mime(
-                                                                      decryptedFile
-                                                                          .path)
-                                                                  as String,
-                                                            )),
-                                                      ),
-                                                    );
-                                                    // } else {
-                                                    //   ScaffoldMessenger.of(context)
-                                                    //       .showSnackBar(
-                                                    //           faceNotMatchedSnackBar);
-                                                    // }
+                                                    _downloadFile(index);
                                                   },
                                                   icon: const Icon(
                                                       CupertinoIcons
@@ -296,7 +302,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                   .fileList[widget.currentId]
                                                       ?[index]
                                                   .modifiedTime
-                                              .toString() as String)),
+                                                  .toString() as String)),
                                           trailing: googleDriveService
                                                       .fileList[widget
                                                           .currentId]?[index]
@@ -304,15 +310,15 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                   "application/vnd.google-apps.folder"
                                               ? Text(
                                                   formatBytes(
-                                                     googleDriveService
+                                                      googleDriveService
                                                               .fileList[widget
                                                                       .currentId]
                                                                   ?[index]
                                                               .size ??
-                                                          0 as int,
+                                                          0,
                                                       2),
-                                                  style:
-                                                      TextStyle(fontSize: 14),
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
                                                 )
                                               : const Text(''),
                                           title: GestureDetector(
@@ -322,26 +328,27 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                                           .currentId]?[index]
                                                       .mimeType ==
                                                   "application/vnd.google-apps.folder") {
-                                                final files_list =
-                                                    await googleDriveService
-                                                        .getAllFileFromGoogleDriveFromSpaceId(
-                                                            googleDriveService
-                                                                .fileList[widget
-                                                                        .currentId]
-                                                                    ?[index]
-                                                                .id as String);
+                                                await googleDriveService
+                                                    .getAllFileFromGoogleDriveFromSpaceId(
+                                                        googleDriveService
+                                                            .fileList[widget
+                                                                    .currentId]
+                                                                ?[index]
+                                                            .id as String);
+                                                if (!mounted) return;
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: ((context) =>
                                                         FilesListScreen(
                                                           // fileList: files_list,
-                                                          currentId: googleDriveService
+                                                          currentId:
+                                                              googleDriveService
                                                                   .fileList[
                                                                       widget
                                                                           .currentId]
                                                                       ?[index]
-                                                              .id as String,
+                                                                  .id as String,
                                                         )),
                                                   ),
                                                 );
