@@ -90,7 +90,6 @@ class _FilesListScreenState extends State<FilesListScreen> {
           //Checks if the face is matched
           faceApiServices!.faceMatched = false;
           faceApiServices!.similarity = 'nill';
-
           final fatchMatched =
               await Navigator.pushNamed(context, FaceApiScreen.routeName);
           if (fatchMatched == true) {

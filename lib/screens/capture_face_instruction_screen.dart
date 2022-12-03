@@ -6,6 +6,7 @@ import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/screens/display_picture_screen.dart';
+import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/services/auth_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -210,7 +211,9 @@ class _CaptureFaceInstructionScreenState
                 child: InkWell(
                   onTap: () async {
                     if (imageSet) {
-                      authService?.uploadPic(authService!.userUID, savedPath);
+                      await authService?.uploadPic(
+                          authService!.userUID, savedPath);
+                      Navigator.pushNamed(context, LandingScreen.routeName);
                     } else {
                       regula.FaceSDK.presentFaceCaptureActivity().then(
                         (result) {
