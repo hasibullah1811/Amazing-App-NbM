@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,13 +15,6 @@ class GoogleDriveClient {
   GoogleDriveClient(this._dio,
       {GoogleDriveSpace? space, required String? token}) {
     _space = space ?? GoogleDriveSpace.appDataFolder;
-
-    // _dio.interceptors
-    //     .add(InterceptorsWrapper(onRequest: (RequestOptions options, handler) async {
-    //   options.headers['Authorization'] =
-    //       'Bearer ${token}';
-    //   return options.data;
-    // }));
 
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -211,7 +202,7 @@ class GoogleDriveClient {
       uploadUrl,
       options: Options(headers: {'Content-Length': file.lengthSync()}),
       data: file.openRead(),
-      onSendProgress: (count, total) => onUploadProgress?.call(count, total),
+      onSendProgress: (count, total) => onUploadProgress.call(count, total),
     );
     print('ITs being uploaded $token - $file - ${metaData.toString()}');
     return await get(uploadResponse.data['id']);
@@ -229,7 +220,7 @@ class GoogleDriveClient {
       },
       options: Options(headers: {HttpHeaders.acceptEncodingHeader: "*"}),
       onReceiveProgress: (count, total) =>
-          onDownloadProgress?.call(count, total),
+          onDownloadProgress.call(count, total),
     );
     return File(path);
   }

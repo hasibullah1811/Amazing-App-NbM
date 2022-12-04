@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
+import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 
 import '../services/auth_service.dart';
 import '../services/facial_api_service.dart';
-import '../services/file.dart';
 import '../utils/constant_functions.dart';
 import 'Face Live/face_api_screen.dart';
 import 'open_file_screen.dart';
@@ -20,15 +19,11 @@ import 'package:mime_type/mime_type.dart';
 
 class FilesListScreen extends StatefulWidget {
   static const String routeName = "Landing Screen";
-  final List<GoogleDriveFileMetaData> fileList;
   final bool? uploading;
   final String currentId;
 
   const FilesListScreen(
-      {super.key,
-      required this.fileList,
-      this.uploading = false,
-      this.currentId = "root"});
+      {super.key, this.uploading = false, this.currentId = "root"});
 
   @override
   State<FilesListScreen> createState() => _FilesListScreenState();
@@ -36,11 +31,12 @@ class FilesListScreen extends StatefulWidget {
 
 class _FilesListScreenState extends State<FilesListScreen> {
   late AuthService authService;
+  late GoogleDriveService googleDriveService;
   FaceApiServices? faceApiServices;
 
   final spinkit = SpinKitFadingCircle(
     itemBuilder: (BuildContext context, int index) {
-      return DecoratedBox(
+      return const DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.green,
         ),
@@ -61,24 +57,273 @@ class _FilesListScreenState extends State<FilesListScreen> {
     content: Text('Oops! Your face is not matched. Are you trying to steal?'),
   );
 
+  static showSnackbar(BuildContext context, SnackBar snackBar) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     authService = Provider.of<AuthService>(context);
     faceApiServices = Provider.of<FaceApiServices>(context);
+    googleDriveService = Provider.of<GoogleDriveService>(context);
   }
 
   Future<File> _pickFile() async {
     //With parameters:
-    FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
-      allowedFileExtensions: ['jpg', 'pdf', 'doc'],
-      allowedMimeTypes: ['application/*'],
-      invalidFileNameSymbols: ['/'],
+    try {
+      FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
+        allowedFileExtensions: ['jpg', 'pdf', 'doc'],
+        allowedMimeTypes: ['application/*'],
+        invalidFileNameSymbols: ['/'],
+      );
+      final path = await FlutterDocumentPicker.openDocument();
+      File newFile = File(path as String);
+      return newFile;
+    } catch (e) {
+      print(e);
+      return File("");
+    }
+  }
+
+  Future<bool> _faceMatch() async {
+    //comment out this line for face recognition.
+    // return true;
+
+    faceApiServices!.faceMatched = false;
+    faceApiServices!.similarity = 'nill';
+
+    final faceMatched =
+        await Navigator.pushNamed(context, FaceApiScreen.routeName);
+    return faceMatched as bool;
+  }
+
+  _uploadFile() async {
+    if (await _faceMatch() == true) {
+      File newFile = await _pickFile();
+      try {
+        log('FatchMatched');
+        await googleDriveService
+            .encryptFile(newFile)
+            .then((encryptedFile) async {
+          await googleDriveService
+              .uploadFilesToGoogleDrive(encryptedFile, widget.currentId)
+              .then((id) {
+            print('uploaded');
+            ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
+
+            print('id : $id');
+          });
+        });
+      } catch (e) {
+        // ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
+        if (!mounted) return;
+        showSnackbar(context, errorSnackBar);
+        print('upload Error');
+      }
+    }
+  }
+
+  _downloadFile(int index) async {
+    if (await _faceMatch() == true) {
+      File? newFile = await googleDriveService.downloadFile(
+        googleDriveService.fileList[widget.currentId]?[index].id.toString()
+            as String,
+        context,
+        googleDriveService.fileList[widget.currentId]?[index].name.toString()
+            as String,
+      );
+
+      var fileType = googleDriveService.fileList[widget.currentId]?[index].name
+          .toString()
+          .substring((googleDriveService.fileList[widget.currentId]?[index].name
+                  .toString()
+                  .length as int) -
+              3);
+
+      File? decryptedFile;
+      if (fileType == 'aes') {
+        decryptedFile = await googleDriveService.decryptFile(
+          newFile!,
+        );
+      } else {
+        decryptedFile = newFile!;
+      }
+
+      if (!mounted) return;
+      showSnackbar(context, snackBar);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: ((context) => OpenFileScreen(
+                file: decryptedFile!,
+                mimeType: mime(decryptedFile.path) as String,
+              )),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(faceNotMatchedSnackBar);
+    }
+  }
+
+  _fileOrDownloadButton(int index) async {
+    return googleDriveService.fileList[widget.currentId]?[index].mimeType !=
+            "application/vnd.google-apps.folder"
+        ? IconButton(
+            onPressed: () async {
+              _downloadFile(index);
+            },
+            icon: const Icon(CupertinoIcons.cloud_download),
+          )
+        : IconButton(onPressed: () {}, icon: const Icon(CupertinoIcons.folder));
+  }
+
+  _goIntoFolder(index) async {
+    if (googleDriveService.fileList[widget.currentId]?[index].mimeType ==
+        "application/vnd.google-apps.folder") {
+      await googleDriveService.getAllFileFromGoogleDriveFromSpaceId(
+          googleDriveService.fileList[widget.currentId]?[index].id as String);
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: ((context) => FilesListScreen(
+                // fileList: files_list,
+                currentId: googleDriveService
+                    .fileList[widget.currentId]?[index].id as String,
+              )),
+        ),
+      );
+    }
+  }
+
+  _getSizeOfFile(int index) {
+    return googleDriveService.fileList[widget.currentId]?[index].mimeType !=
+            "application/vnd.google-apps.folder"
+        ? Text(
+            formatBytes(
+                googleDriveService.fileList[widget.currentId]?[index].size ?? 0,
+                2),
+            style: const TextStyle(fontSize: 14),
+          )
+        : const Text('');
+  }
+
+  _alertText(Size size, String text) {
+    return Center(
+        child: Container(
+      height: 200,
+      width: size.width - 100,
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(16)),
+      child: Center(
+        child: Text(text),
+      ),
+    ));
+  }
+
+  _pageHeader() {
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Center(
+        child: Text(
+          'Google Drive Files',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
-    final path = await FlutterDocumentPicker.openDocument();
-    File newFile = File(path as String);
-    return newFile;
+  }
+
+  _fileSavedLocationTextView() {
+    return googleDriveService.fileSavedLocation.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                color: Colors.green.withOpacity(0.2),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'File saved on location: ${googleDriveService.fileSavedLocation}',
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          )
+        : Container();
+  }
+
+  _progressIndicator(Size size) {
+    return googleDriveService.progressPercentage != 0
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: size.width * 0.80,
+                  child: LinearProgressIndicator(
+                    value: googleDriveService.progressPercentage / 100,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${googleDriveService.progressPercentage} %',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          )
+        : Container();
+  }
+
+  _fileName(int index) {
+    return Text(
+      googleDriveService.fileList[widget.currentId]?[index].name.toString()
+          as String,
+    );
+  }
+
+  _modifiedTime(int index) {
+    return Text(getFormattedDate(googleDriveService
+        .fileList[widget.currentId]?[index].modifiedTime
+        .toString() as String));
+  }
+
+  _fileListBuilder() {
+    ListView.builder(
+        itemCount: googleDriveService.fileList[widget.currentId]?.length,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: _goIntoFolder(index),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.blue[50]),
+                child: googleDriveService.fileList[widget.currentId] != null
+                    ? ListTile(
+                        iconColor: Colors.blue,
+                        leading: _fileOrDownloadButton(index),
+                        subtitle: _modifiedTime(index),
+                        trailing: _getSizeOfFile(index),
+                        title: _fileName(index),
+                      )
+                    : const CircularProgressIndicator(),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -87,27 +332,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          //Checks if the face is matched
-          faceApiServices!.faceMatched = false;
-          faceApiServices!.similarity = 'nill';
-          final fatchMatched =
-              await Navigator.pushNamed(context, FaceApiScreen.routeName);
-          if (fatchMatched == true) {
-            File newFile = await _pickFile();
-            try {
-              log('FatchMatched');
-              File encryptedFile = await authService.encryptFile(newFile);
-              var id = await authService.uploadFilesToGoogleDrive(
-                  encryptedFile!, widget.currentId);
-              print('uploaded');
-              ScaffoldMessenger.of(context).showSnackBar(uploadSnackBar);
-              authService.progressPercentage = 0;
-              print('id : $id');
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(errorSnackBar);
-              print('upload Error');
-            }
-          }
+          _uploadFile();
         },
         child: const Icon(Icons.add),
       ),
@@ -119,181 +344,21 @@ class _FilesListScreenState extends State<FilesListScreen> {
           children: [
             Column(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(
-                    child: Text(
-                      'Google Drive Files',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-                authService.fileSavedLocation.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.green.withOpacity(0.2),
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'File saved on location: ${authService.fileSavedLocation}',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(),
-                authService.progressPercentage != 0
-                    ? Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Progress: ${authService.progressPercentage} %',
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    : Container(),
-                Container(
-                  height: 500,
+                _pageHeader(),
+                _fileSavedLocationTextView(),
+                _progressIndicator(size),
+                SizedBox(
+                  height: size.height * 0.70,
                   width: size.width,
-                  child: ListView.builder(
-                      itemCount: widget.fileList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: Colors.blue[50]),
-                            child: ListTile(
-                              iconColor: Colors.blue,
-                              leading: widget.fileList[index].mimeType !=
-                                      "application/vnd.google-apps.folder"
-                                  ? IconButton(
-                                      onPressed: () async {
-                                        print(
-                                          widget.fileList[index].id.toString(),
-                                        );
-                                        //Checks if the face is matched
-                                        final fatchMatched =
-                                            await Navigator.pushNamed(context,
-                                                FaceApiScreen.routeName);
-
-                                        if (fatchMatched == true) {
-                                          File? newFile =
-                                              await authService.downloadFile(
-                                            widget.fileList[index].id
-                                                .toString(),
-                                            context,
-                                            widget.fileList[index].name
-                                                .toString(),
-                                          );
-
-                                          var fileType = widget
-                                              .fileList[index].name
-                                              .toString()
-                                              .substring(widget
-                                                      .fileList[index].name
-                                                      .toString()
-                                                      .length -
-                                                  3);
-
-                                          File? decryptedFile;
-                                          if (fileType == 'aes') {
-                                            decryptedFile =
-                                                await authService.decryptFile(
-                                              newFile!,
-                                            );
-                                          } else {
-                                            decryptedFile = newFile!;
-                                          }
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(snackBar);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: ((context) =>
-                                                  OpenFileScreen(
-                                                    imageFile: decryptedFile!,
-                                                    mimeType:
-                                                        mime(decryptedFile.path)
-                                                            as String,
-                                                  )),
-                                            ),
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                                  faceNotMatchedSnackBar);
-                                        }
-                                      },
-                                      icon: const Icon(
-                                          CupertinoIcons.cloud_download),
-                                    )
-                                  : IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(CupertinoIcons.folder)),
-                              subtitle: Text(getFormattedDate(widget
-                                  .fileList[index].modifiedTime
-                                  .toString())),
-                              trailing: widget.fileList[index].mimeType !=
-                                      "application/vnd.google-apps.folder"
-                                  ? Text(
-                                      formatBytes(
-                                          widget.fileList[index].size ??
-                                              0 as int,
-                                          2),
-                                      style: TextStyle(fontSize: 14),
-                                    )
-                                  : const Text(''),
-                              title: GestureDetector(
-                                onTap: () async {
-                                  if (widget.fileList[index].mimeType ==
-                                      "application/vnd.google-apps.folder") {
-                                    final files_list = await authService
-                                        .getAllFileFromGoogleDriveFromSpaceId(
-                                            widget.fileList[index].id
-                                                as String);
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: ((context) => FilesListScreen(
-                                              fileList: files_list,
-                                              currentId: widget
-                                                  .fileList[index].id as String,
-                                            )),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  widget.fileList[index].name.toString(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                ),
+                  child: _fileListBuilder(),
+                )
               ],
             ),
-            authService.isEncrypting
-                ? CircularProgressIndicator(
-                    strokeWidth: 2,
-                  )
+            googleDriveService.isEncrypting
+                ? _alertText(size, 'Decrypting... Please don\'t close the app.')
                 : Container(),
-            authService.isDecrypting
-                ? CircularProgressIndicator(
-                    strokeWidth: 2,
-                  )
+            googleDriveService.isDecrypting
+                ? _alertText(size, 'Encrypting... Please don\'t close the app.')
                 : Container(),
           ],
         ),
