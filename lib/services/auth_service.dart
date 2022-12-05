@@ -26,7 +26,8 @@ class AuthService with ChangeNotifier {
   late GoogleSignInAccount? currentUser;
   late User user;
   String userUID = '';
-  bool pictureUploaded = false;
+  bool pictureUploaded = true;
+  // bool pictureUploaded = false;
   final clientId =
       "925629464605-uh9ri343esng52voe9emqncvhu0i27va.apps.googleusercontent.com";
   final scopes = [
@@ -47,7 +48,6 @@ class AuthService with ChangeNotifier {
         scopes: [
           'email',
           drive.DriveApi.driveFileScope,
-
           drive.DriveApi.driveAppdataScope,
           drive.DriveApi.driveMetadataScope,
           drive.DriveApi.driveScope,
@@ -65,6 +65,7 @@ class AuthService with ChangeNotifier {
     } else {
       //web or desktop specific code
     }
+    getGoogleAuth();
   }
 
   getGoogleAuth() async {
@@ -92,7 +93,7 @@ class AuthService with ChangeNotifier {
     currentUser = googleUser;
     signedIn = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await createUser('', googleAuth.accessToken.toString());
+      // await createUser('', googleAuth.accessToken.toString());
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       await createUser(googleAuth.idToken.toString(), '');
     }
@@ -156,6 +157,7 @@ class AuthService with ChangeNotifier {
         userUID = res.data['uid'];
         if (res.data['pic'] == '') {
           pictureUploaded = false;
+          // pictureUploaded = true;
           log('Picture not uploaded');
         } else {
           pictureUploaded = true;

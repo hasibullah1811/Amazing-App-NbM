@@ -139,6 +139,7 @@ class GoogleDriveService with ChangeNotifier {
 
     final filePathFull = "${directories?.first.path}/$nameWithoutAes";
     final fileExist = await File(filePathFull).exists();
+    if (authService.currentUser == null) await authService.getGoogleAuth();
     String? decryptedFilePath;
     if (!fileExist) {
       AesCrypt crypt = AesCrypt();

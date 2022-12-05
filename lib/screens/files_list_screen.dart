@@ -91,7 +91,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     }
   }
 
-  Future<bool> _faceMatch() async {
+  Future<bool>  _faceMatch() async {
     //comment out this line for face recognition.
     return true;
 
@@ -202,26 +202,26 @@ class _FilesListScreenState extends State<FilesListScreen> {
                     ),
                   ),
                 ),
-                googleDriveService.fileSavedLocation.isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.green.withOpacity(0.2),
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'File saved on location: ${googleDriveService.fileSavedLocation}',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Container(),
+                // googleDriveService.fileSavedLocation.isNotEmpty
+                //     ? Padding(
+                //         padding: const EdgeInsets.all(8.0),
+                //         child: Container(
+                //           decoration: BoxDecoration(
+                //             borderRadius: BorderRadius.circular(8.0),
+                //             color: Colors.green.withOpacity(0.2),
+                //           ),
+                //           child: Center(
+                //             child: Padding(
+                //               padding: const EdgeInsets.all(8.0),
+                //               child: Text(
+                //                 'File saved on location: ${googleDriveService.fileSavedLocation}',
+                //                 textAlign: TextAlign.center,
+                //               ),
+                //             ),
+                //           ),
+                //         ),
+                //       )
+                //     : Container(),
                 googleDriveService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -260,91 +260,89 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                   child: googleDriveService
                                               .fileList[widget.currentId] !=
                                           null
-                                      ? ListTile(
-                                          iconColor: Colors.blue,
-                                          leading: googleDriveService
-                                                      .fileList[widget
-                                                          .currentId]?[index]
-                                                      .mimeType !=
-                                                  "application/vnd.google-apps.folder"
-                                              ? IconButton(
-                                                  onPressed: () async {
-                                                    _downloadFile(index);
-                                                  },
-                                                  icon: const Icon(
-                                                      CupertinoIcons
-                                                          .cloud_download),
-                                                )
-                                              : IconButton(
-                                                  onPressed: () {},
-                                                  icon: const Icon(
-                                                      CupertinoIcons.folder)),
-                                          subtitle: Text(getFormattedDate(
-                                              googleDriveService
-                                                  .fileList[widget.currentId]
-                                                      ?[index]
-                                                  .modifiedTime
-                                                  .toString() as String)),
-                                          trailing: googleDriveService
-                                                      .fileList[widget
-                                                          .currentId]?[index]
-                                                      .mimeType !=
-                                                  "application/vnd.google-apps.folder"
-                                              ? Text(
-                                                  formatBytes(
+                                      ? GestureDetector(
+                                          onTap: () async {
+                                            if (googleDriveService
+                                                    .fileList[widget.currentId]
+                                                        ?[index]
+                                                    .mimeType ==
+                                                "application/vnd.google-apps.folder") {
+                                              await googleDriveService
+                                                  .getAllFileFromGoogleDriveFromSpaceId(
                                                       googleDriveService
-                                                              .fileList[widget
-                                                                      .currentId]
-                                                                  ?[index]
-                                                              .size ??
-                                                          0,
-                                                      2),
-                                                  style: const TextStyle(
-                                                      fontSize: 14),
-                                                )
-                                              : const Text(''),
-                                          title: GestureDetector(
-                                            onTap: () async {
-                                              if (googleDriveService
-                                                      .fileList[widget
-                                                          .currentId]?[index]
-                                                      .mimeType ==
-                                                  "application/vnd.google-apps.folder") {
-                                                await googleDriveService
-                                                    .getAllFileFromGoogleDriveFromSpaceId(
+                                                          .fileList[
+                                                              widget.currentId]
+                                                              ?[index]
+                                                          .id as String);
+                                              if (!mounted) return;
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: ((context) =>
+                                                      FilesListScreen(
+                                                        // fileList: files_list,
+                                                        currentId:
+                                                            googleDriveService
+                                                                .fileList[widget
+                                                                        .currentId]
+                                                                    ?[index]
+                                                                .id as String,
+                                                      )),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: ListTile(
+                                            iconColor: Colors.blue,
+                                            leading: googleDriveService
+                                                        .fileList[widget
+                                                            .currentId]?[index]
+                                                        .mimeType !=
+                                                    "application/vnd.google-apps.folder"
+                                                ? IconButton(
+                                                    onPressed: () async {
+                                                      _downloadFile(index);
+                                                    },
+                                                    icon: const Icon(
+                                                        CupertinoIcons
+                                                            .cloud_download),
+                                                  )
+                                                : IconButton(
+                                                    onPressed: () {},
+                                                    icon: const Icon(
+                                                        CupertinoIcons.folder)),
+                                            subtitle: Text(getFormattedDate(
+                                                googleDriveService
+                                                    .fileList[widget.currentId]
+                                                        ?[index]
+                                                    .modifiedTime
+                                                    .toString() as String)),
+                                            trailing: googleDriveService
+                                                        .fileList[widget
+                                                            .currentId]?[index]
+                                                        .mimeType !=
+                                                    "application/vnd.google-apps.folder"
+                                                ? Text(
+                                                    formatBytes(
                                                         googleDriveService
-                                                            .fileList[widget
-                                                                    .currentId]
-                                                                ?[index]
-                                                            .id as String);
-                                                if (!mounted) return;
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: ((context) =>
-                                                        FilesListScreen(
-                                                          // fileList: files_list,
-                                                          currentId:
-                                                              googleDriveService
-                                                                  .fileList[
-                                                                      widget
-                                                                          .currentId]
-                                                                      ?[index]
-                                                                  .id as String,
-                                                        )),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            child: Text(
+                                                                .fileList[widget
+                                                                        .currentId]
+                                                                    ?[index]
+                                                                .size ??
+                                                            0,
+                                                        2),
+                                                    style: const TextStyle(
+                                                        fontSize: 14),
+                                                  )
+                                                : const Text(''),
+                                            title: Text(
                                               googleDriveService
                                                   .fileList[widget.currentId]
                                                       ?[index]
                                                   .name
                                                   .toString() as String,
                                             ),
-                                          ),
-                                        )
+                                          ))
                                       : const CircularProgressIndicator(),
                                 ),
                               );

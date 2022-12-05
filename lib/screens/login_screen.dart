@@ -99,19 +99,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: InkWell(
                       onTap: () async {
-                        await authService.googleSignInNew();
-                        // Navigator.pushNamed(
-                        // context, DriveUploadScreen.routeName);
-                        if (authService.pictureUploaded) {
-                          Navigator.pushNamed(
-                            context,
-                            LandingScreen.routeName,
-                          );
-                        } else {
-                          Navigator.pushNamed(
-                            context,
-                            CaptureFaceInstructionScreen.routeName,
-                          );
+                        try {
+                          await authService.googleSignInNew();
+                          // Navigator.pushNamed(
+                          // context, DriveUploadScreen.routeName);
+                          if (authService.pictureUploaded) {
+                            Navigator.pushNamed(
+                              context,
+                              LandingScreen.routeName,
+                            );
+                          } else {
+                            Navigator.pushNamed(
+                              context,
+                              CaptureFaceInstructionScreen.routeName,
+                            );
+                          }
+                        } catch (e) {
+                          SnackBar snackBar =
+                              const SnackBar(content: Text('Error Signing In'));
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       },
                       child: CustomButtonLarge(title: 'Sign In'),
