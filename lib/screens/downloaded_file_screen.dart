@@ -57,7 +57,17 @@ class _DownloadedFileScreenState extends State<DownloadedFileScreen> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Downloads"),
+        elevation: 0.0,
+        backgroundColor: Colors.blueGrey,
+        title: const Text(
+          'Downloads',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -74,6 +84,7 @@ class _DownloadedFileScreenState extends State<DownloadedFileScreen> {
                   ),
                 ))
               : Container(),
+              
           ListView.builder(
             itemBuilder: (context, index) {
               return CustomListTileFile(

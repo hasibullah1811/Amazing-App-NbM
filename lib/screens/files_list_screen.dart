@@ -91,7 +91,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     }
   }
 
-  Future<bool>  _faceMatch() async {
+  Future<bool> _faceMatch() async {
     //comment out this line for face recognition.
     return true;
 
@@ -176,6 +176,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.blueGrey,
         onPressed: () async {
           _uploadFile();
         },
@@ -183,25 +184,35 @@ class _FilesListScreenState extends State<FilesListScreen> {
       ),
       appBar: AppBar(
         elevation: 0.0,
+        backgroundColor: Colors.blueGrey,
+        title: const Text(
+          'Google Drive Files',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SafeArea(
         child: Stack(
           children: [
             Column(
               children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(
-                    child: Text(
-                      'Google Drive Files',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
+                // const Padding(
+                //   padding: EdgeInsets.all(16.0),
+                //   child: Center(
+                //     child: Text(
+                //       'Google Drive Files',
+                //       style: TextStyle(
+                //         color: Colors.grey,
+                //         fontSize: 24,
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 // googleDriveService.fileSavedLocation.isNotEmpty
                 //     ? Padding(
                 //         padding: const EdgeInsets.all(8.0),
@@ -245,7 +256,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                     : Container(),
                 googleDriveService.fileList[widget.currentId] != null
                     ? SizedBox(
-                        height: size.height * 0.70,
+                        height: size.height * 0.8,
                         width: size.width,
                         child: ListView.builder(
                             itemCount: googleDriveService
@@ -255,8 +266,20 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Colors.blue[50]),
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Colors.grey[100],
+                                    border: Border.all(
+                                      color: Colors.orange[100]!,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        spreadRadius: 5,
+                                        blurRadius: 7,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
                                   child: googleDriveService
                                               .fileList[widget.currentId] !=
                                           null
@@ -293,7 +316,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
                                             }
                                           },
                                           child: ListTile(
-                                            iconColor: Colors.blue,
+                                            iconColor: Colors.amber,
                                             leading: googleDriveService
                                                         .fileList[widget
                                                             .currentId]?[index]

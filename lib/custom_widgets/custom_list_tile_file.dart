@@ -25,34 +25,69 @@ class CustomListTileFile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      title: Text(title),
-      subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing != null ? Text(trailing!) : null,
-      leading: Container(
-        width: 40,
-        height: 40,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: 80,
         decoration: BoxDecoration(
-          color: Colors.grey,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.grey[100],
+          border: Border.all(
+            color: Colors.orange[100]!,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Center(
-          child: isEncrypted == true
-              ? const Icon(
-                  Icons.lock,
-                  color: Colors.white,
-                )
-              : isDownloaded == true
-                  ? const Icon(
-                      Icons.download_done,
-                      color: Colors.white,
-                    )
-                  : const Icon(
-                      Icons.file_copy,
-                      color: Colors.white,
-                    ),
+          child: ListTile(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            title: Text(title),
+            subtitle: subtitle != null ? Text(subtitle!) : null,
+            trailing: trailing != null ? Text(trailing!) : null,
+            leading: Container(
+              width: 50,
+              height: 50,
+              // decoration: BoxDecoration(
+              //   color: Colors.blueGrey,
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              child: Center(
+                child: isEncrypted == true
+                    ? IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.lock_outlined,
+                          color: Colors.amber,
+                        ),
+                        // color: Colors.amber,
+                      )
+                    : isDownloaded == true
+                        ? IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.download_done_outlined,
+                              color: Colors.amber,
+                            ),
+                            // color: Colors.amber,
+                          )
+                        : IconButton(
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.file_present,
+                              color: Colors.amber,
+                            ),
+                            // color: Colors.amber,
+                          ),
+              ),
+            ),
+          ),
         ),
       ),
     );
