@@ -78,7 +78,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
     //With parameters:
     try {
       FlutterDocumentPickerParams params = FlutterDocumentPickerParams(
-        allowedFileExtensions: ['jpg', 'pdf', 'doc'],
+        allowedFileExtensions: ['jpg', 'pdf', 'doc', 'docx', 'png', 'jpeg'],
         allowedMimeTypes: ['application/*'],
         invalidFileNameSymbols: ['/'],
       );
@@ -93,7 +93,7 @@ class _FilesListScreenState extends State<FilesListScreen> {
 
   Future<bool> _faceMatch() async {
     //comment out this line for face recognition.
-    return true;
+    // return true;
 
     faceApiServices!.faceMatched = false;
     faceApiServices!.similarity = 'nill';
@@ -200,39 +200,6 @@ class _FilesListScreenState extends State<FilesListScreen> {
           children: [
             Column(
               children: [
-                // const Padding(
-                //   padding: EdgeInsets.all(16.0),
-                //   child: Center(
-                //     child: Text(
-                //       'Google Drive Files',
-                //       style: TextStyle(
-                //         color: Colors.grey,
-                //         fontSize: 24,
-                //         fontWeight: FontWeight.bold,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // googleDriveService.fileSavedLocation.isNotEmpty
-                //     ? Padding(
-                //         padding: const EdgeInsets.all(8.0),
-                //         child: Container(
-                //           decoration: BoxDecoration(
-                //             borderRadius: BorderRadius.circular(8.0),
-                //             color: Colors.green.withOpacity(0.2),
-                //           ),
-                //           child: Center(
-                //             child: Padding(
-                //               padding: const EdgeInsets.all(8.0),
-                //               child: Text(
-                //                 'File saved on location: ${googleDriveService.fileSavedLocation}',
-                //                 textAlign: TextAlign.center,
-                //               ),
-                //             ),
-                //           ),
-                //         ),
-                //       )
-                //     : Container(),
                 googleDriveService.progressPercentage != 0
                     ? Padding(
                         padding: const EdgeInsets.all(16.0),

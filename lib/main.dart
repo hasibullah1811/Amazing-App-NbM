@@ -53,8 +53,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Amazing App',
         theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Montserrat'),
-        home: const LoginScreen(),
-        // home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
+        // home: const LoginScreen(),
+        home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>

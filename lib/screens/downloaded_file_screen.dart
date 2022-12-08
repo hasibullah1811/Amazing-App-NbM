@@ -42,7 +42,7 @@ class _DownloadedFileScreenState extends State<DownloadedFileScreen> {
 
   Future<bool> _faceMatch() async {
     //comment out this line for face recognition.
-    return true;
+    // return true;
 
     faceApiServices.faceMatched = false;
     faceApiServices.similarity = 'nill';
