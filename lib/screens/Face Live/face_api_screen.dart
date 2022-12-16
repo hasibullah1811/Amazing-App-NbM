@@ -24,6 +24,7 @@ class _FaceApiScreenState extends State<FaceApiScreen> {
   String profilePicLocalAddress = '';
   FaceApiServices? faceApiServices;
   bool imagesSet = false;
+  bool testing = false;
 
   @override
   void initState() {
@@ -32,7 +33,8 @@ class _FaceApiScreenState extends State<FaceApiScreen> {
     // initPlatformState();
     Future.delayed(Duration.zero, () async {
       //your async 'await' codes goes here
-      await getProfilePicAndSetInitialImgToCompare();
+      if (!testing) await getProfilePicAndSetInitialImgToCompare();
+      // else await get
       // await matchFaces();
     });
   }

@@ -2,6 +2,7 @@ const express = require("express");
 const auth = require("../routes/authentication");
 const profilepic = require("../routes/profilepic");
 const home = require("../routes/home");
+const getProfile = require("../routes/getProfile");
 const fs = require("firebase-admin");
 const { initializeApp } = require("firebase/app");
 
@@ -44,4 +45,5 @@ module.exports = function (app) {
   app.use("/api/auth", auth);
   app.use("/api/upload", profilepic);
   app.use("/api", home);
+  app.use("/api/getProfile/", getProfile);
 };

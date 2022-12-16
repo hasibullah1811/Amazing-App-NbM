@@ -84,7 +84,6 @@ class _DownloadedFileScreenState extends State<DownloadedFileScreen> {
                   ),
                 ))
               : Container(),
-              
           ListView.builder(
             itemBuilder: (context, index) {
               return CustomListTileFile(

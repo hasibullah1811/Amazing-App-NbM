@@ -8,8 +8,10 @@ import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/open_file_screen.dart';
+import 'package:amazing_app/screens/test_face_recognition.dart';
 import 'package:amazing_app/services/file_service.dart';
 import 'package:amazing_app/services/google_drive_service.dart';
+import 'package:amazing_app/services/test_service.dart';
 import 'package:amazing_app/utils/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,6 +36,7 @@ class _LandingScreenState extends State<LandingScreen> {
   late AuthService authService;
   late GoogleDriveService googleDriveService;
   late FileService fileService;
+  late TestService testService;
 
   @override
   void didChangeDependencies() {
@@ -42,6 +45,7 @@ class _LandingScreenState extends State<LandingScreen> {
     authService = Provider.of<AuthService>(context);
     googleDriveService = Provider.of<GoogleDriveService>(context);
     fileService = Provider.of<FileService>(context);
+    testService = Provider.of<TestService>(context);
   }
 
   @override
@@ -92,24 +96,6 @@ class _LandingScreenState extends State<LandingScreen> {
                               height: 43,
                               child: Image.asset("assets/images/portrait.png"),
                             )
-                          // CircleAvatar(
-                          //   backgroundImage: CachedNetworkImageProvider(
-                          //     authService.currentUser!.photoUrl.toString(),
-                          //     errorListener: () => const Icon(Icons.error),
-
-                          //     //     Icon(Icons.error),,
-                          //     // progressIndicatorBuilder:
-                          //     //     (context, url, downloadProgress) =>
-                          //     //         CircularProgressIndicator(
-                          //     //   strokeWidth: 2,
-                          //     //   value: downloadProgress.progress,
-                          //     // ),
-                          //     // height: 40,
-                          //     // width: 40,
-                          //     // errorWidget: (context, url, error) =>
-                          //     //     Icon(Icons.error),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
@@ -265,56 +251,82 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                     ],
                   ),
-
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: Container(
-                  //     width: double.infinity,
-                  //     decoration:
-                  //         BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                  //     child: Row(
-                  //       children: const [
-                  //         Padding(
-                  //           padding: EdgeInsets.all(8.0),
-                  //           child: Icon(Icons.lock_open),
-                  //         ),
-                  //         Text(
-                  //           'Recently Decrypted Files',
-                  //           style: TextStyle(
-                  //             fontWeight: FontWeight.bold,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-                  // const Divider(),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: InkWell(
-                  //     onTap: () async {
-                  //       final fatchMatched = await Navigator.pushNamed(
-                  //           context, FaceApiScreen.routeName);
-
-                  //       if (fatchMatched == true) {
-                  //         log('FatchMatched');
-                  //       }
-                  //     },
-                  //     child: CustomButtonLarge(title: 'Face Liveness'),
-                  //   ),
-                  // ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: InkWell(
-                  //     onTap: () {
-                  //       Navigator.pushNamed(
-                  //           context, CaptureFaceInstructionScreen.routeName);
-                  //     },
-                  //     child: CustomButtonLarge(
-                  //       title: 'Capture Face Instruction',
-                  //     ),
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20.0,
+                      horizontal: 16.0,
+                    ),
+                    child: InkWell(
+                      onTap: () async {
+                        // await testService.fetchPhotos();
+                        Navigator.pushNamed(
+                            context, TestFaceRecognition.routeName);
+                        // final files_list =
+                        //     await fileService.getDownloadedFileList();
+                        // print(files_list);
+                        // googleDriveService.progressPercentage = 0;
+                        // if (!mounted) return;
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: ((context) =>
+                        //         const DownloadedFileScreen()),
+                        //   ),
+                        // );
+                      },
+                      child: Container(
+                        height: 150,
+                        width: MediaQuery.of(context).size.width * 0.40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey.withOpacity(0.2),
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                          gradient: LinearGradient(
+                            colors: [
+                              primaryColorLight,
+                              primaryColorLight.withOpacity(0.8)
+                            ],
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'TEST',
+                                    style: TextStyle(
+                                        fontSize: 22.0,
+                                        color: Colors.white,
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Icon(
+                                    Icons.file_open_sharp,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'TEST the app',
+                                style: TextStyle(
+                                    fontSize: 16.0, color: Colors.white54),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               Column(

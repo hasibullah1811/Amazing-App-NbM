@@ -125,7 +125,6 @@ class AuthService with ChangeNotifier {
       });
 
       var res = await dio.post(
-        // 'https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/$uid',
         "https://amazing-app-backend-production.up.railway.app/api/upload/uploadPic/$uid",
         data: formData1,
         options: client.Options(headers: {
