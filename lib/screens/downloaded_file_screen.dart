@@ -56,77 +56,83 @@ class _DownloadedFileScreenState extends State<DownloadedFileScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: Colors.blueGrey,
+        automaticallyImplyLeading: true,
+        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: Colors.white,
         title: const Text(
           'Downloads',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
+            color: Colors.black,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          googleDriveService.isDecrypting
-              ? Center(
-                  child: Container(
-                  height: 200,
-                  width: size.width - 100,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16)),
-                  child: const Center(
-                    child: Text('Decrypting... Please don\'t close the app.'),
-                  ),
-                ))
-              : Container(),
-          ListView.builder(
-            itemBuilder: (context, index) {
-              return CustomListTileFile(
-                title: getName(fileService.files[index].absolute.path),
-                onTap: () async {
-                  if (await _faceMatch()) {
-                    File? decryptedFile;
+      body: SafeArea(
+        child: Stack(
+          children: [
+            googleDriveService.isDecrypting
+                ? Center(
+                    child: Container(
+                    height: 200,
+                    width: size.width - 100,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16)),
+                    child: const Center(
+                      child: Text('Decrypting... Please don\'t close the app.'),
+                    ),
+                  ))
+                : Container(),
+            ListView.builder(
+              itemBuilder: (context, index) {
+                return CustomListTileFile(
+                  title: getName(fileService.files[index].absolute.path),
+                  onTap: () async {
+                    if (await _faceMatch()) {
+                      File? decryptedFile;
 
-                    var fileType =
-                        fileService.files[index].absolute.path.split(".").last;
-                    if (fileType == 'aes') {
-                      decryptedFile = await googleDriveService.decryptFile(
-                        File(fileService.files[index].absolute.path),
+                      var fileType = fileService.files[index].absolute.path
+                          .split(".")
+                          .last;
+                      if (fileType == 'aes') {
+                        decryptedFile = await googleDriveService.decryptFile(
+                          File(fileService.files[index].absolute.path),
+                        );
+                      } else {
+                        decryptedFile =
+                            File(fileService.files[index].absolute.path);
+                      }
+                      print(mime(fileService.files[index].absolute.path));
+                      if (!mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: ((context) => OpenFileScreen(
+                                file: decryptedFile!,
+                                mimeType: mime(decryptedFile.path) as String,
+                              )),
+                        ),
                       );
                     } else {
-                      decryptedFile =
-                          File(fileService.files[index].absolute.path);
+                      SnackBar snackBar =
+                          const SnackBar(content: Text("Face not matched"));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
-                    print(mime(fileService.files[index].absolute.path));
-                    if (!mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: ((context) => OpenFileScreen(
-                              file: decryptedFile!,
-                              mimeType: mime(decryptedFile.path) as String,
-                            )),
-                      ),
-                    );
-                  } else {
-                    SnackBar snackBar =
-                        const SnackBar(content: Text("Face not matched"));
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
-                },
-                isEncrypted:
-                    mime(fileService.files[index].absolute.path) == null,
-                // isDownloaded: true,
-              );
-            },
-            itemCount: fileService.files.length,
-          ),
-        ],
+                  },
+                  isEncrypted:
+                      mime(fileService.files[index].absolute.path) == null,
+                  // isDownloaded: true,
+                );
+              },
+              itemCount: fileService.files.length,
+            ),
+          ],
+        ),
       ),
     );
   }

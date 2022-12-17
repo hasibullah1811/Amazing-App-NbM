@@ -31,13 +31,13 @@ class CustomListTileFile extends StatelessWidget {
         height: 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[100],
+          color: Colors.white,
           border: Border.all(
-            color: Colors.orange[100]!,
+            color: Colors.deepPurple[100]!,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withOpacity(0.1),
               spreadRadius: 5,
               blurRadius: 7,
               offset: const Offset(0, 3),

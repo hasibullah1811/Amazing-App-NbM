@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:amazing_app/custom_widgets/custom_button_large.dart';
+import 'package:amazing_app/custom_widgets/custom_drawer.dart';
 import 'package:amazing_app/screens/Face%20Live/face_api_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
@@ -37,6 +38,7 @@ class _LandingScreenState extends State<LandingScreen> {
   late GoogleDriveService googleDriveService;
   late FileService fileService;
   late TestService testService;
+  GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
   @override
   void didChangeDependencies() {
@@ -51,6 +53,10 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _drawerKey,
+      drawer: CustomDrawer(
+        authService: authService,
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SizedBox(
@@ -62,28 +68,20 @@ class _LandingScreenState extends State<LandingScreen> {
               Column(
                 children: [
                   InkWell(
-                    onTap: () {},
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                authService.currentUser!.displayName.toString(),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                ),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () => _drawerKey.currentState?.openDrawer(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Icon(
+                                CupertinoIcons.line_horizontal_3,
                               ),
-                              Text(
-                                authService.currentUser!.email.toString(),
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                           if (authService.currentUser!.photoUrl != null)
                             CircleAvatar(
@@ -146,9 +144,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        'Files',
+                                        'Google\nDrive',
                                         style: TextStyle(
-                                          fontSize: 22.0,
+                                          fontSize: 14.0,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -165,9 +163,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                 const Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
-                                    'Browse Files on your google Drive',
+                                    'Upload, Download, Browse Files on your google Drive',
                                     style: TextStyle(
-                                        fontSize: 16.0, color: Colors.white54),
+                                        fontSize: 12.0, color: Colors.white54),
                                   ),
                                 ),
                               ],
@@ -220,9 +218,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        'Recent',
+                                        'Recent\nFiles',
                                         style: TextStyle(
-                                            fontSize: 22.0,
+                                            fontSize: 14.0,
                                             color: Colors.white,
                                             overflow: TextOverflow.ellipsis),
                                       ),
@@ -230,7 +228,7 @@ class _LandingScreenState extends State<LandingScreen> {
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Icon(
-                                        Icons.file_open_sharp,
+                                        Icons.downloading_rounded,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -239,9 +237,9 @@ class _LandingScreenState extends State<LandingScreen> {
                                 const Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text(
-                                    'Browse Files on your Device',
+                                    'Browse Files that your recently download on your Device',
                                     style: TextStyle(
-                                        fontSize: 16.0, color: Colors.white54),
+                                        fontSize: 12.0, color: Colors.white54),
                                   ),
                                 ),
                               ],
@@ -250,82 +248,6 @@ class _LandingScreenState extends State<LandingScreen> {
                         ),
                       ),
                     ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 16.0,
-                    ),
-                    child: InkWell(
-                      onTap: () async {
-                        // await testService.fetchPhotos();
-                        Navigator.pushNamed(
-                            context, TestFaceRecognition.routeName);
-                        // final files_list =
-                        //     await fileService.getDownloadedFileList();
-                        // print(files_list);
-                        // googleDriveService.progressPercentage = 0;
-                        // if (!mounted) return;
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: ((context) =>
-                        //         const DownloadedFileScreen()),
-                        //   ),
-                        // );
-                      },
-                      child: Container(
-                        height: 150,
-                        width: MediaQuery.of(context).size.width * 0.40,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(0.2),
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                          gradient: LinearGradient(
-                            colors: [
-                              primaryColorLight,
-                              primaryColorLight.withOpacity(0.8)
-                            ],
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'TEST',
-                                    style: TextStyle(
-                                        fontSize: 22.0,
-                                        color: Colors.white,
-                                        overflow: TextOverflow.ellipsis),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.file_open_sharp,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'TEST the app',
-                                style: TextStyle(
-                                    fontSize: 16.0, color: Colors.white54),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -341,13 +263,19 @@ class _LandingScreenState extends State<LandingScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: InkWell(
-                  onTap: () async {
-                    await authService.handleSignOut();
-                    if (!mounted) return;
-                    Navigator.pushReplacementNamed(
-                        context, LoginScreen.routeName);
-                  },
-                  child: CustomButtonLarge(title: 'Sign Out'),
+                  // onTap: () async {
+                  //   await authService.handleSignOut();
+                  //   if (!mounted) return;
+                  //   Navigator.pushReplacementNamed(
+                  //       context, LoginScreen.routeName);
+                  // },
+                  child: Text(
+                    '© Amazing App 2021. Version: +1.0.1 Alpha',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               )
             ],

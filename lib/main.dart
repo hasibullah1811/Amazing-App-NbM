@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
                 cameras: cameras,
               ),
           LoginScreen.routeName: (context) => const LoginScreen(),
-          CaptureFaceLive.routeName: (context) => const CaptureFaceLive(),
+          CaptureFaceTestLab.routeName: (context) => CaptureFaceTestLab(),
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
           LandingScreen.routeName: (context) => const LandingScreen(),
           FaceApiScreen.routeName: (context) => FaceApiScreen(),
