@@ -6,6 +6,7 @@ import 'package:amazing_app/custom_widgets/custom_button_large.dart';
 import 'package:amazing_app/screens/capture_face_live.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/screens/display_picture_screen.dart';
+import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/services/auth_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
@@ -174,22 +175,6 @@ class _CaptureFaceInstructionScreenState
                   ),
                 ],
               ),
-              // Center(
-              //   child: Lottie.asset(
-              //     'assets/animations/face_scan_animation.json',
-              //     width: 150,
-              //     height: 150,
-              //     fit: BoxFit.fill,
-              // controller: _controller,
-              //     onLoaded: (composition) {
-              //       // Configure the AnimationController with the duration of the
-              //       // Lottie file and start the animation.
-              //       _controller
-              //         ..duration = composition.duration
-              //         ..forward();
-              //     },
-              //   ),
-              // ),
               createImage(img1.image, () => showAlertDialog(context, true)),
               const Padding(
                 padding: EdgeInsets.all(16.0),
@@ -210,7 +195,12 @@ class _CaptureFaceInstructionScreenState
                 child: InkWell(
                   onTap: () async {
                     if (imageSet) {
-                      authService?.uploadPic(authService!.userUID, savedPath);
+                      authService
+                          ?.uploadPic(authService!.userUID, savedPath)
+                          .then((value) {
+                        Navigator.popAndPushNamed(
+                            context, LandingScreen.routeName);
+                      });
                     } else {
                       regula.FaceSDK.presentFaceCaptureActivity().then(
                         (result) {

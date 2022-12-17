@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: InkWell(
                   onTap: () {
-                    Navigator.pushNamed(context, CaptureFaceLive.routeName);
+                    Navigator.pushNamed(context, CaptureFaceTestLab.routeName);
                   },
                   child: CustomButtonLarge(title: 'Capture With Liveness'),
                 ),

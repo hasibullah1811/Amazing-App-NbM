@@ -15,7 +15,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService with ChangeNotifier {
   // https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/1234
   // https://pure-chamber-40901.herokuapp.com/api/auth/signIn
-  static String serverURl = 'https://pure-chamber-40901.herokuapp.com/api/';
+  // static String serverURl = 'https://pure-chamber-40901.herokuapp.com/api/';
+  static String serverURL =
+      "https://amazing-app-backend-production.up.railway.app/api/";
 
   late BuildContext navigationContext;
 
@@ -26,7 +28,8 @@ class AuthService with ChangeNotifier {
   late GoogleSignInAccount? currentUser;
   late User user;
   String userUID = '';
-  bool pictureUploaded = false;
+  bool? pictureUploaded;
+  // bool pictureUploaded = false;
   final clientId =
       "925629464605-uh9ri343esng52voe9emqncvhu0i27va.apps.googleusercontent.com";
   final scopes = [
@@ -47,7 +50,6 @@ class AuthService with ChangeNotifier {
         scopes: [
           'email',
           drive.DriveApi.driveFileScope,
-
           drive.DriveApi.driveAppdataScope,
           drive.DriveApi.driveMetadataScope,
           drive.DriveApi.driveScope,
@@ -65,9 +67,10 @@ class AuthService with ChangeNotifier {
     } else {
       //web or desktop specific code
     }
+    getGoogleAuth();
   }
 
-  getGoogleAuth() async {
+  Future<GoogleSignInAuthentication> getGoogleAuth() async {
     final GoogleSignInAccount? googleUser =
         await googleSignIn.signIn().catchError((onError) {});
     final GoogleSignInAuthentication googleAuth =
@@ -92,6 +95,8 @@ class AuthService with ChangeNotifier {
     currentUser = googleUser;
     signedIn = true;
     if (defaultTargetPlatform == TargetPlatform.android) {
+      // Commenting this code for now
+      // uncomment this code when you want to create a new user.
       await createUser('', googleAuth.accessToken.toString());
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       await createUser(googleAuth.idToken.toString(), '');
@@ -120,7 +125,7 @@ class AuthService with ChangeNotifier {
       });
 
       var res = await dio.post(
-        'https://pure-chamber-40901.herokuapp.com/api/upload/uploadPic/$uid',
+        "https://amazing-app-backend-production.up.railway.app/api/upload/uploadPic/$uid",
         data: formData1,
         options: client.Options(headers: {
           "Accept": "*/*",
@@ -145,7 +150,9 @@ class AuthService with ChangeNotifier {
   ) async {
     try {
       client.Response res = await dio.post(
-        "https://pure-chamber-40901.herokuapp.com/api/auth/signIn",
+        // "https://pure-chamber-40901.herokuapp.com/api/auth/signIn",
+
+        "https://amazing-app-backend-production.up.railway.app/api/auth/signIn",
         data: {
           "access_token": accessToken,
           "id_token": authIdToken,
@@ -157,6 +164,7 @@ class AuthService with ChangeNotifier {
         if (res.data['pic'] == '') {
           pictureUploaded = false;
           log('Picture not uploaded');
+          notifyListeners();
         } else {
           pictureUploaded = true;
           log('Picture  uploaded');

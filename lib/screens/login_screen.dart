@@ -47,8 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
           print('Silent Sign In');
           print(currentUser!.email.toString());
           authService.currentUser = currentUser;
-          Navigator.pushNamed(context, LandingScreen.routeName);
-          // Navigator.pushNamed(context, DriveUploadScreen.routeName);
+          if (authService.pictureUploaded == true) {
+            Navigator.pushNamed(context, LandingScreen.routeName);
+          }
+          //       // Navigator.pushNamed(context, LandingScreen.routeName);
+          //       // Navigator.pushNamed(context, DriveUploadScreen.routeName);
         }
       });
       authService.googleSignIn.signInSilently();
@@ -59,50 +62,54 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: screenLoaded
-          ? SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        'Welcome to the Amazing App',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+        backgroundColor: Colors.white,
+        body: Visibility(
+          // visible: authService.pictureUploaded == true,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      'Welcome to the Amazing App',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Center(
-                    child: Lottie.asset(
-                      'assets/animations/google-icon.json',
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.fill,
+                ),
+                Center(
+                  child: Lottie.asset(
+                    'assets/animations/google-icon.json',
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      'Please sign in with your google account to continue',
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        'Please sign in with your google account to continue',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: InkWell(
-                      onTap: () async {
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: InkWell(
+                    onTap: () async {
+                      try {
                         await authService.googleSignInNew();
                         // Navigator.pushNamed(
                         // context, DriveUploadScreen.routeName);
-                        if (authService.pictureUploaded) {
+                        if (!mounted) return;
+                        if (authService.pictureUploaded != null &&
+                            authService.pictureUploaded == true) {
                           Navigator.pushNamed(
                             context,
                             LandingScreen.routeName,
@@ -113,59 +120,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             CaptureFaceInstructionScreen.routeName,
                           );
                         }
-                      },
-                      child: CustomButtonLarge(title: 'Sign In'),
-                    ),
+                        // Navigator.pushNamed(
+                        //   context,
+                        //   CaptureFaceInstructionScreen.routeName,
+                        // );
+                      } catch (e) {
+                        SnackBar snackBar =
+                            const SnackBar(content: Text('Error Signing In'));
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    child: CustomButtonLarge(title: 'Sign In'),
                   ),
-                  // _signInContainer(),
-                ],
-              ),
-            )
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
+                ),
+                // _signInContainer(),
               ],
             ),
-    );
-  }
-
-  Widget _signInContainer() {
-    return Center(
-      child: Container(
-        height: 200,
-        child: Column(
-          children: [
-            authService.signedIn
-                ? Column(
-                    children: [
-                      Text(authService.user.user.email),
-                      Text(authService.user.user.displayName),
-                    ],
-                  )
-                : Container(),
-            authService.signedIn
-                ? const Text("Signed In")
-                : const Text('Not Signed In'),
-            ElevatedButton(
-                onPressed: () async {
-                  await authService.googleSignInNew();
-                  if (authService.pictureUploaded) {
-                    Navigator.pushNamed(
-                      context,
-                      LandingScreen.routeName,
-                    );
-                  } else {
-                    Navigator.pushNamed(
-                      context,
-                      CaptureFaceInstructionScreen.routeName,
-                    );
-                  }
-                },
-                child: const Text("Sign In with Google"))
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
