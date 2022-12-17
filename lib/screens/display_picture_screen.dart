@@ -35,9 +35,17 @@ class _DisplayPictureScreenState extends State<DisplayPictureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Display the Picture'),
         elevation: 0.0,
-        backgroundColor: primaryColorLight,
+        backgroundColor: Colors.blueGrey,
+        title: const Text(
+          'Display the picture',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16.0),

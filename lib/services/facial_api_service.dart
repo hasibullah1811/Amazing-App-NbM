@@ -56,7 +56,7 @@ class FaceApiServices with ChangeNotifier {
     // faceMatched = false;
     notifyListeners();
 
-    var request = new Regula.MatchFacesRequest();
+    var request = Regula.MatchFacesRequest();
     request.images = [image1, image2];
     Regula.FaceSDK.matchFaces(jsonEncode(request)).then((value) {
       var response = Regula.MatchFacesResponse.fromJson(json.decode(value));
@@ -72,7 +72,7 @@ class FaceApiServices with ChangeNotifier {
 
         if (similarity == "error") {
           faceMatched = false;
-          SnackBar snackBar = SnackBar(
+          SnackBar snackBar = const SnackBar(
             content: Text('Fatch did not match, try again'),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -84,7 +84,7 @@ class FaceApiServices with ChangeNotifier {
           faceMatched = true;
           matchingInProgress = false;
           SnackBar snackBar = SnackBar(
-            content: Text('Fatch matched with ' + similarity + 'Similarity'),
+            content: Text('Fatch matched with ${similarity}Similarity'),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           notifyListeners();

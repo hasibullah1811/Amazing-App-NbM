@@ -175,22 +175,6 @@ class _CaptureFaceInstructionScreenState
                   ),
                 ],
               ),
-              // Center(
-              //   child: Lottie.asset(
-              //     'assets/animations/face_scan_animation.json',
-              //     width: 150,
-              //     height: 150,
-              //     fit: BoxFit.fill,
-              // controller: _controller,
-              //     onLoaded: (composition) {
-              //       // Configure the AnimationController with the duration of the
-              //       // Lottie file and start the animation.
-              //       _controller
-              //         ..duration = composition.duration
-              //         ..forward();
-              //     },
-              //   ),
-              // ),
               createImage(img1.image, () => showAlertDialog(context, true)),
               const Padding(
                 padding: EdgeInsets.all(16.0),
@@ -211,9 +195,12 @@ class _CaptureFaceInstructionScreenState
                 child: InkWell(
                   onTap: () async {
                     if (imageSet) {
-                      await authService?.uploadPic(
-                          authService!.userUID, savedPath);
-                      Navigator.pushNamed(context, LandingScreen.routeName);
+                      authService
+                          ?.uploadPic(authService!.userUID, savedPath)
+                          .then((value) {
+                        Navigator.popAndPushNamed(
+                            context, LandingScreen.routeName);
+                      });
                     } else {
                       regula.FaceSDK.presentFaceCaptureActivity().then(
                         (result) {

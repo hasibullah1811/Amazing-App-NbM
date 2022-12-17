@@ -1,15 +1,16 @@
 import 'dart:ui';
 
 import 'package:amazing_app/screens/Face%20Live/face_api_screen.dart';
-import 'package:amazing_app/screens/files_list_screen.dart';
-import 'package:amazing_app/screens/open_file_screen.dart';
+import 'package:amazing_app/screens/downloaded_file_screen.dart';
 import 'package:amazing_app/screens/landing_screen.dart';
 import 'package:amazing_app/screens/login_screen.dart';
 import 'package:amazing_app/screens/capture_face_instruction_screen.dart';
 import 'package:amazing_app/screens/capture_face_screen.dart';
 import 'package:amazing_app/screens/onboarding_screen.dart';
+import 'package:amazing_app/screens/test_face_recognition.dart';
 import 'package:amazing_app/services/camera_service.dart';
 import 'package:amazing_app/services/facial_api_service.dart';
+import 'package:amazing_app/services/file_service.dart';
 import 'package:amazing_app/services/google_drive_service.dart';
 import 'package:camera/camera.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +19,7 @@ import 'services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
+import 'services/test_service.dart';
 
 bool? isViewed;
 Future<void> main() async {
@@ -47,13 +49,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CameraService()),
         ChangeNotifierProvider(create: (_) => FaceApiServices()),
         ChangeNotifierProvider(create: (_) => GoogleDriveService()),
+        ChangeNotifierProvider(create: (_) => FileService()),
+        ChangeNotifierProvider(create: (_) => TestService()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Amazing App',
         theme: ThemeData(primarySwatch: Colors.blue, fontFamily: 'Montserrat'),
-        home: const LoginScreen(),
-        // home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
+        // home: const LoginScreen(),
+        home: isViewed != true ? const OnboardingScreen() : const LoginScreen(),
         routes: {
           HomeScreen.routeName: ((context) => const HomeScreen()),
           CaptureFaceInstructionScreen.routeName: ((context) =>
@@ -66,6 +70,9 @@ class MyApp extends StatelessWidget {
           OnboardingScreen.routeName: (context) => const OnboardingScreen(),
           LandingScreen.routeName: (context) => const LandingScreen(),
           FaceApiScreen.routeName: (context) => FaceApiScreen(),
+          TestFaceRecognition.routeName: (context) => TestFaceRecognition(),
+          DownloadedFileScreen.routeName: (context) =>
+              const DownloadedFileScreen(),
         },
       ),
     );
